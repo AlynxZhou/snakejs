@@ -4,7 +4,7 @@ class App
     @ctx = @canvas.getContext("2d")
     @switchButton = document.getElementById("switch")
     @refreshButton = document.getElementById("refresh")
-    @unitNum = 40
+    @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerID = null
     @touch = []

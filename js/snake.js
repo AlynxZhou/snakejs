@@ -28,7 +28,7 @@
       this.ctx = this.canvas.getContext("2d");
       this.switchButton = document.getElementById("switch");
       this.refreshButton = document.getElementById("refresh");
-      this.unitNum = 40;
+      this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
       this.timerID = null;
       this.touch = [];
