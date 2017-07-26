@@ -15,9 +15,9 @@ class App
       "RIGHT": "LEFT"
     @refresh()
     addEventListener("keydown", @handleKeyDown, false)
-    addEventListener("touchstart", @handleTouchStart, false)
-    addEventListener("touchmove", @handleTouchMove, false)
-    addEventListener("touchend", @handleTouchEnd, false)
+    @canvas.addEventListener("touchstart", @handleTouchStart, false)
+    @canvas.addEventListener("touchmove", @handleTouchMove, false)
+    @canvas.addEventListener("touchend", @handleTouchEnd, false)
   createFood: () =>
     @food = [Math.floor(Math.random() * @unitNum), \
     Math.floor(Math.random() * @unitNum)]
