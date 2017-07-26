@@ -124,6 +124,7 @@ class App
   moveSnake: () =>
     @changeSnakeMove()
     @insertSnakeHead()
+    @checkAllPos()
     switch @checkHeadCollision()
       when 1
         @createFood()
@@ -136,7 +137,6 @@ class App
       when -1
         @deleteSnakeTail()
         return -1
-    @checkAllPos()
   checkPos: (point) =>
     point[0] %= @unitNum
     point[1] %= @unitNum

@@ -199,25 +199,27 @@
     };
 
     App.prototype.moveSnake = function() {
+      var results;
       this.changeSnakeMove();
       this.insertSnakeHead();
+      this.checkAllPos();
       switch (this.checkHeadCollision()) {
         case 1:
           this.createFood();
           this.checkAllPos();
+          results = [];
           while (this.isFoodInSnake()) {
             this.createFood();
-            this.checkAllPos();
+            results.push(this.checkAllPos());
           }
+          return results;
           break;
         case 0:
-          this.deleteSnakeTail();
-          break;
+          return this.deleteSnakeTail();
         case -1:
           this.deleteSnakeTail();
           return -1;
       }
-      return this.checkAllPos();
     };
 
     App.prototype.checkPos = function(point) {
