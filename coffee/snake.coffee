@@ -92,23 +92,21 @@ class App
     for i in [0...4]
       switch move
         when "UP"
-          list.push([headX, headY + i])
+          list.push(@checkPos([headX, headY + i]))
         when "DOWN"
-          list.push([headX, headY - i])
+          list.push(@checkPos([headX, headY - i]))
         when "LEFT"
-          list.push([headX + i, headY])
+          list.push(@checkPos([headX + i, headY]))
         when "RIGHT"
-          list.push([headX - i, headY])
+          list.push(@checkPos([headX - i, headY]))
     @snake.list = list
     @snake.move = move
   createFood: () =>
     @food = [Math.floor(Math.random() * @unitNum), \
     Math.floor(Math.random() * @unitNum)]
-    @food = @checkPos(@food)
     while @isFoodCollision()
       @food = [Math.floor(Math.random() * @unitNum), \
       Math.floor(Math.random() * @unitNum)]
-      @food = @checkPos(@Food)
   isFoodCollision: () =>
     for body in @snake.list
       if @food[0] is body[0] and @food[1] is body[1]
@@ -130,19 +128,18 @@ class App
     headY = @snake.list[0][1]
     switch @snake.move
       when "UP"
-        @snake.list.unshift([headX, headY - 1])
+        @snake.list.unshift(@checkPos([headX, headY - 1]))
       when "DOWN"
-        @snake.list.unshift([headX, headY + 1])
+        @snake.list.unshift(@checkPos([headX, headY + 1]))
       when "LEFT"
-        @snake.list.unshift([headX - 1, headY])
+        @snake.list.unshift(@checkPos([headX - 1, headY]))
       when "RIGHT"
-        @snake.list.unshift([headX + 1, headY])
+        @snake.list.unshift(@checkPos([headX + 1, headY]))
   deleteSnakeTail: () =>
     @snake.list.pop()
   moveSnake: () =>
     @changeSnakeMove()
     @insertSnakeHead()
-    @checkAllPos()
     switch @checkHeadCollision()
       when 1 then @createFood()
       when 0 then @deleteSnakeTail()
@@ -155,10 +152,6 @@ class App
     while point[0] < 0 then point[0] += @unitNum
     while point[1] < 0 then point[1] += @unitNum
     return point
-  checkAllPos: () =>
-    @food = @checkPos(@food)
-    @snake.list = (@checkPos(body) for body in @snake.list)
-    @map.wall = (@checkPos(brick) for brick in @map.wall)
   checkHeadCollision: () =>
     for body in @snake.list[1...(@snake.list.length - 1)]
       if @snake.list[0][0] is body[0] and @snake.list[0][1] is body[1]
@@ -278,7 +271,6 @@ class App
     @snake = {}
     @createSnake()
     @createFood()
-    @checkAllPos()
     @renderPresent()
     @switchButton.innerHTML = "开始"
     @switchButton.onclick = @start
