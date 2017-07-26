@@ -40,9 +40,9 @@
       };
       this.refresh();
       addEventListener("keydown", this.handleKeyDown, false);
-      this.canvas.addEventListener("touchstart", this.handleTouchStart, false);
-      this.canvas.addEventListener("touchmove", this.handleTouchMove, false);
-      this.canvas.addEventListener("touchend", this.handleTouchEnd, false);
+      addEventListener("touchstart", this.handleTouchStart, false);
+      addEventListener("touchmove", this.handleTouchMove, false);
+      addEventListener("touchend", this.handleTouchEnd, false);
     }
 
     App.prototype.createFood = function() {
