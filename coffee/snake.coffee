@@ -4,6 +4,9 @@ class App
     @ctx = @canvas.getContext("2d")
     @switchButton = document.getElementById("switch")
     @refreshButton = document.getElementById("refresh")
+    @speedRadio = [document.getElementById("radio0"), \
+    document.getElementById("radio1"), \
+    document.getElementById("radio2")]
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerID = null
@@ -14,6 +17,7 @@ class App
       "DOWN": "UP"
       "LEFT": "RIGHT"
       "RIGHT": "LEFT"
+    @interval = 150
     @refresh()
     addEventListener("keydown", @handleKeyDown, false)
     @canvas.addEventListener("touchstart", @handleTouchStart, false)
@@ -199,7 +203,7 @@ class App
     if @moveSnake() is -1 then @death()
     @renderPresent()
   start: () =>
-    @timerID = setInterval(@main, 150)
+    @timerID = setInterval(@main, @interval)
     @switchButton.innerHTML = "暂停"
     @switchButton.onclick = @stop
   stop: () =>
@@ -210,6 +214,16 @@ class App
     clearInterval(@timerID)
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
+  setSpeed: () =>
+    if @speedRadio[0].checked
+      @interval = 200
+      @refresh()
+    else if @speedRadio[2].checked
+      @interval = 100
+      @refresh()
+    else
+      @interval = 150
+      @refresh()
   refresh: () =>
     if @timerID?
       clearInterval(@timerID)
@@ -225,5 +239,8 @@ class App
     @switchButton.onclick = @start
     @refreshButton.innerHTML = "重来"
     @refreshButton.onclick = @refresh
+    @speedRadio[0].onclick = @setSpeed
+    @speedRadio[1].onclick = @setSpeed
+    @speedRadio[2].onclick = @setSpeed
 
 app = new App()

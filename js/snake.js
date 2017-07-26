@@ -6,6 +6,7 @@
   App = (function() {
     function App() {
       this.refresh = bind(this.refresh, this);
+      this.setSpeed = bind(this.setSpeed, this);
       this.death = bind(this.death, this);
       this.stop = bind(this.stop, this);
       this.start = bind(this.start, this);
@@ -28,6 +29,7 @@
       this.ctx = this.canvas.getContext("2d");
       this.switchButton = document.getElementById("switch");
       this.refreshButton = document.getElementById("refresh");
+      this.speedRadio = [document.getElementById("radio0"), document.getElementById("radio1"), document.getElementById("radio2")];
       this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
       this.timerID = null;
@@ -39,6 +41,7 @@
         "LEFT": "RIGHT",
         "RIGHT": "LEFT"
       };
+      this.interval = 150;
       this.refresh();
       addEventListener("keydown", this.handleKeyDown, false);
       this.canvas.addEventListener("touchstart", this.handleTouchStart, false);
@@ -338,7 +341,7 @@
     };
 
     App.prototype.start = function() {
-      this.timerID = setInterval(this.main, 150);
+      this.timerID = setInterval(this.main, this.interval);
       this.switchButton.innerHTML = "暂停";
       return this.switchButton.onclick = this.stop;
     };
@@ -353,6 +356,19 @@
       clearInterval(this.timerID);
       this.switchButton.innerHTML = "死啦";
       return this.switchButton.onclick = this.refresh;
+    };
+
+    App.prototype.setSpeed = function() {
+      if (this.speedRadio[0].checked) {
+        this.interval = 200;
+        return this.refresh();
+      } else if (this.speedRadio[2].checked) {
+        this.interval = 100;
+        return this.refresh();
+      } else {
+        this.interval = 150;
+        return this.refresh();
+      }
     };
 
     App.prototype.refresh = function() {
@@ -370,7 +386,10 @@
       this.switchButton.innerHTML = "开始";
       this.switchButton.onclick = this.start;
       this.refreshButton.innerHTML = "重来";
-      return this.refreshButton.onclick = this.refresh;
+      this.refreshButton.onclick = this.refresh;
+      this.speedRadio[0].onclick = this.setSpeed;
+      this.speedRadio[1].onclick = this.setSpeed;
+      return this.speedRadio[2].onclick = this.setSpeed;
     };
 
     return App;
