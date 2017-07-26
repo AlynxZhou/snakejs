@@ -7,7 +7,7 @@ class App
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerID = null
-    @touch = []
+    @touchStart = []
     @opposite =
       "UP": "DOWN"
       "DOWN": "UP"
@@ -21,6 +21,11 @@ class App
   createFood: () =>
     @food = [Math.floor(Math.random() * @unitNum), \
     Math.floor(Math.random() * @unitNum)]
+    @checkPos(@food)
+    while @isFoodInSnake()
+      @food = [Math.floor(Math.random() * @unitNum), \
+      Math.floor(Math.random() * @unitNum)]
+      @checkPos(@Food)
   isFoodInSnake: () =>
     for body in @snake.list
       if @food[0] is body[0] and @food[1] is body[1]
@@ -37,67 +42,43 @@ class App
     @snake.move = move
   handleKeyDown: (event) =>
     switch event.keyCode
-      when 38
-        move = "UP"
-      when 40
-        move = "DOWN"
-      when 37
-        move = "LEFT"
-      when 39
-        move = "RIGHT"
-      when 87
-        move = "UP"
-      when 83
-        move = "DOWN"
-      when 65
-        move = "LEFT"
-      when 68
-        move = "RIGHT"
+      when 38 then move = "UP"
+      when 40 then move = "DOWN"
+      when 37 then move = "LEFT"
+      when 39 then move = "RIGHT"
+      when 87 then move = "UP"
+      when 83 then move = "DOWN"
+      when 65 then move = "LEFT"
+      when 68 then move = "RIGHT"
       when 32
         event.preventDefault()
-        switch @switchButton.innerHTML
-          when "死啦"
-            @refresh()
-          when "暂停"
-            @stop()
-          when "开始"
-            @start()
-          when "继续"
-            @start()
+        @switchButton.onclick()
       when 13
         event.preventDefault()
-        @refresh()
+        @refreshButton.onclick()
     if move?
       event.preventDefault()
       @moveQueue.push(move)
   handleTouchStart: (event) =>
     if event.touches.length > 1 or event.targetTouches.length > 1
       return -1
-    @touch.push([event.touches[0].clientX, event.touches[0].clientY])
+    @touchStart.push([event.touches[0].clientX, event.touches[0].clientY])
     event.preventDefault()
   handleTouchMove: (event) ->
     event.preventDefault()
   handleTouchEnd: (event) =>
     if event.touches.length or event.targetTouches.length > 0
       return -1
-    @touch.push([event.changedTouches[0].clientX, \
-    event.changedTouches[0].clientY])
-    dx = @touch[1][0] - @touch[0][0]
-    dy = @touch[1][1] - @touch[0][1]
+    dx = event.changedTouches[0].clientX - @touchStart[0]
+    dy = event.changedTouches[0].clientY - @touchStart[1]
     absDx = Math.abs(dx)
     absDy = Math.abs(dy)
-    @touch = []
+    @touchStart.shift()
     if Math.max(absDx, absDy) > 30
-      if absDx > absDy
-        if dx > 0
-          move = "RIGHT"
-        else
-          move = "LEFT"
+      move = (if absDx > absDy
+        (if dx > 0 then "RIGHT" else "LEFT")
       else
-        if dy > 0
-          move = "DOWN"
-        else
-          move = "UP"
+        (if dy > 0 then "DOWN" else "UP"))
       event.preventDefault()
       @moveQueue.push(move)
   changeSnakeMove: () =>
@@ -126,14 +107,8 @@ class App
     @insertSnakeHead()
     @checkAllPos()
     switch @checkHeadCollision()
-      when 1
-        @createFood()
-        @checkAllPos()
-        while @isFoodInSnake()
-          @createFood()
-          @checkAllPos()
-      when 0
-        @deleteSnakeTail()
+      when 1 then @createFood()
+      when 0 then @deleteSnakeTail()
       when -1
         @deleteSnakeTail()
         return -1
@@ -166,8 +141,7 @@ class App
       @ctx.fillRect(body[0] * @unitSize, body[1] * @unitSize, \
       @unitSize, @unitSize)
   main: () =>
-    if @moveSnake() is -1
-      @death()
+    if @moveSnake() is -1 then @death()
     @renderPresent()
   start: () =>
     @timerID = setInterval(@main, 150)
@@ -189,10 +163,6 @@ class App
     @snake = {}
     @createSnake()
     @createFood()
-    @checkAllPos()
-    while @isFoodInSnake()
-      @createFood()
-      @checkAllPos()
     @renderPresent()
     @switchButton.innerHTML = "开始"
     @switchButton.onclick = @start

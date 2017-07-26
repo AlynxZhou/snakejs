@@ -1,0 +1,54 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+App	coffee/snake.coffee	/^class App$/;"	c
+absDx	coffee/snake.coffee	/^    absDx = Math.abs(dx)$/;"	v
+absDy	coffee/snake.coffee	/^    absDy = Math.abs(dy)$/;"	v
+changeSnakeMove	coffee/snake.coffee	/^  changeSnakeMove: () =>$/;"	m
+checkAllPos	coffee/snake.coffee	/^  checkAllPos: () =>$/;"	m
+checkHeadCollision	coffee/snake.coffee	/^  checkHeadCollision: () =>$/;"	m
+checkPos	coffee/snake.coffee	/^  checkPos: (point) =>$/;"	m
+constructor	coffee/snake.coffee	/^  constructor: () ->$/;"	m
+createFood	coffee/snake.coffee	/^  createFood: () =>$/;"	m
+createSnake	coffee/snake.coffee	/^  createSnake: () =>$/;"	m
+ctx.fillStyle	coffee/snake.coffee	/^      @ctx.fillStyle = "rgba(0, 0, 0, 0.7)"$/;"	f
+ctx.fillStyle	coffee/snake.coffee	/^    @ctx.fillStyle = "rgba(0, 0, 200, 0.7)"$/;"	f
+ctx.fillStyle	coffee/snake.coffee	/^    @ctx.fillStyle = "rgba(200, 0, 0, 0.7)"$/;"	f
+death	coffee/snake.coffee	/^  death: () =>$/;"	m
+deleteSnakeTail	coffee/snake.coffee	/^  deleteSnakeTail: () =>$/;"	m
+food	coffee/snake.coffee	/^    @food = @checkPos(@food)$/;"	f
+food	coffee/snake.coffee	/^    @food = []$/;"	f
+handleKeyDown	coffee/snake.coffee	/^  handleKeyDown: (event) =>$/;"	m
+handleTouchEnd	coffee/snake.coffee	/^  handleTouchEnd: (event) =>$/;"	m
+handleTouchMove	coffee/snake.coffee	/^  handleTouchMove: (event) ->$/;"	m
+handleTouchStart	coffee/snake.coffee	/^  handleTouchStart: (event) =>$/;"	m
+insertSnakeHead	coffee/snake.coffee	/^  insertSnakeHead: () =>$/;"	m
+isFoodInSnake	coffee/snake.coffee	/^  isFoodInSnake: () =>$/;"	m
+list	coffee/snake.coffee	/^    list = []$/;"	v
+main	coffee/snake.coffee	/^  main: () =>$/;"	m
+move	coffee/snake.coffee	/^    move = "RIGHT"$/;"	v
+moveQueue	coffee/snake.coffee	/^    @moveQueue = []$/;"	f
+moveSnake	coffee/snake.coffee	/^  moveSnake: () =>$/;"	m
+opposite	coffee/snake.coffee	/^    @opposite =$/;"	f
+refresh	coffee/snake.coffee	/^  refresh: () =>$/;"	m
+refreshButton.innerHTML	coffee/snake.coffee	/^    @refreshButton.innerHTML = "重来"$/;"	f
+refreshButton.onclick	coffee/snake.coffee	/^    @refreshButton.onclick = @refresh$/;"	f
+renderPresent	coffee/snake.coffee	/^  renderPresent: () =>$/;"	m
+snake	coffee/snake.coffee	/^    @snake = {}$/;"	f
+snake.list	coffee/snake.coffee	/^    @snake.list = list$/;"	f
+snake.move	coffee/snake.coffee	/^      @snake.move = @moveQueue.shift()$/;"	f
+snake.move	coffee/snake.coffee	/^    @snake.move = move$/;"	f
+start	coffee/snake.coffee	/^  start: () =>$/;"	m
+stop	coffee/snake.coffee	/^  stop: () =>$/;"	m
+switchButton.innerHTML	coffee/snake.coffee	/^    @switchButton.innerHTML = "开始"$/;"	f
+switchButton.innerHTML	coffee/snake.coffee	/^    @switchButton.innerHTML = "暂停"$/;"	f
+switchButton.innerHTML	coffee/snake.coffee	/^    @switchButton.innerHTML = "死啦"$/;"	f
+switchButton.innerHTML	coffee/snake.coffee	/^    @switchButton.innerHTML = "继续"$/;"	f
+switchButton.onclick	coffee/snake.coffee	/^    @switchButton.onclick = @refresh$/;"	f
+switchButton.onclick	coffee/snake.coffee	/^    @switchButton.onclick = @start$/;"	f
+switchButton.onclick	coffee/snake.coffee	/^    @switchButton.onclick = @stop$/;"	f
+touchStart	coffee/snake.coffee	/^    @touchStart = []$/;"	f
+unitNum	coffee/snake.coffee	/^    @unitNum = 30$/;"	f

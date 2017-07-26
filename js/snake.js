@@ -31,7 +31,7 @@
       this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
       this.timerID = null;
-      this.touch = [];
+      this.touchStart = [];
       this.opposite = {
         "UP": "DOWN",
         "DOWN": "UP",
@@ -46,7 +46,15 @@
     }
 
     App.prototype.createFood = function() {
-      return this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
+      var results;
+      this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
+      this.checkPos(this.food);
+      results = [];
+      while (this.isFoodInSnake()) {
+        this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
+        results.push(this.checkPos(this.Food));
+      }
+      return results;
     };
 
     App.prototype.isFoodInSnake = function() {
@@ -103,23 +111,11 @@
           break;
         case 32:
           event.preventDefault();
-          switch (this.switchButton.innerHTML) {
-            case "死啦":
-              this.refresh();
-              break;
-            case "暂停":
-              this.stop();
-              break;
-            case "开始":
-              this.start();
-              break;
-            case "继续":
-              this.start();
-          }
+          this.switchButton.onclick();
           break;
         case 13:
           event.preventDefault();
-          this.refresh();
+          this.refreshButton.onclick();
       }
       if (move != null) {
         event.preventDefault();
@@ -131,7 +127,7 @@
       if (event.touches.length > 1 || event.targetTouches.length > 1) {
         return -1;
       }
-      this.touch.push([event.touches[0].clientX, event.touches[0].clientY]);
+      this.touchStart.push([event.touches[0].clientX, event.touches[0].clientY]);
       return event.preventDefault();
     };
 
@@ -144,26 +140,13 @@
       if (event.touches.length || event.targetTouches.length > 0) {
         return -1;
       }
-      this.touch.push([event.changedTouches[0].clientX, event.changedTouches[0].clientY]);
-      dx = this.touch[1][0] - this.touch[0][0];
-      dy = this.touch[1][1] - this.touch[0][1];
+      dx = event.changedTouches[0].clientX - this.touchStart[0];
+      dy = event.changedTouches[0].clientY - this.touchStart[1];
       absDx = Math.abs(dx);
       absDy = Math.abs(dy);
-      this.touch = [];
+      this.touchStart.shift();
       if (Math.max(absDx, absDy) > 30) {
-        if (absDx > absDy) {
-          if (dx > 0) {
-            move = "RIGHT";
-          } else {
-            move = "LEFT";
-          }
-        } else {
-          if (dy > 0) {
-            move = "DOWN";
-          } else {
-            move = "UP";
-          }
-        }
+        move = (absDx > absDy ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP"));
         event.preventDefault();
         return this.moveQueue.push(move);
       }
@@ -199,21 +182,12 @@
     };
 
     App.prototype.moveSnake = function() {
-      var results;
       this.changeSnakeMove();
       this.insertSnakeHead();
       this.checkAllPos();
       switch (this.checkHeadCollision()) {
         case 1:
-          this.createFood();
-          this.checkAllPos();
-          results = [];
-          while (this.isFoodInSnake()) {
-            this.createFood();
-            results.push(this.checkAllPos());
-          }
-          return results;
-          break;
+          return this.createFood();
         case 0:
           return this.deleteSnakeTail();
         case -1:
@@ -315,11 +289,6 @@
       this.snake = {};
       this.createSnake();
       this.createFood();
-      this.checkAllPos();
-      while (this.isFoodInSnake()) {
-        this.createFood();
-        this.checkAllPos();
-      }
       this.renderPresent();
       this.switchButton.innerHTML = "开始";
       this.switchButton.onclick = this.start;
