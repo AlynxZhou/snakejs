@@ -4,41 +4,79 @@ class App
     @ctx = @canvas.getContext("2d")
     @switchButton = document.getElementById("switch")
     @refreshButton = document.getElementById("refresh")
-    @speedRadio = [document.getElementById("radio0"), \
-    document.getElementById("radio1"), \
-    document.getElementById("radio2")]
+    @speedRadio = [document.getElementById("speed0"), \
+    document.getElementById("speed1"), \
+    document.getElementById("speed2")]
+    @mapRadio = [document.getElementById("map0"), \
+    document.getElementById("map1"), \
+    document.getElementById("map2")]
+    @speedRadio[0].onclick = @setSpeed
+    @speedRadio[1].onclick = @setSpeed
+    @speedRadio[2].onclick = @setSpeed
+    @mapRadio[0].onclick = @setMap
+    @mapRadio[1].onclick = @setMap
+    @mapRadio[2].onclick = @setMap
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerID = null
     @touchStart = []
     @directions = ["UP", "DOWN", "LEFT", "RIGHT"]
-    @opposite =
+    @opposite = {
       "UP": "DOWN"
       "DOWN": "UP"
       "LEFT": "RIGHT"
       "RIGHT": "LEFT"
+    }
     @interval = 150
+    @maps = [
+      {
+        "head": null
+        "move": null
+        "wall": []
+      },
+      {
+        "head": [14, 14]
+        "move": "RIGHT"
+        "wall": [
+          [0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], \
+          [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], \
+          [23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], \
+          [29, 1], [29, 2], [29, 3], [29, 4], [29, 5], [29, 6], \
+          [0, 29], [1, 29], [2, 29], [3, 29], [4, 29], [5, 29], [6, 29], \
+          [0, 23], [0, 24], [0, 25], [0, 26], [0, 27], [0, 28], \
+          [23, 29], [24, 29], [25, 29], [26, 29], [27, 29], [28, 29], \
+          [29, 29], [29, 23], [29, 24], [29, 25], [29, 26], [29, 27], \
+          [29, 28], \
+          [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], \
+          [16, 10], [17, 10], [18, 10], [19, 10], \
+          [10, 19], [11, 19], [12, 19], [13, 19], [14, 19], [15, 19], \
+          [16, 19], [17, 19], [18, 19], [19, 19]
+        ]
+      },
+      {
+        "head": [10, 13],
+        "move": "RIGHT",
+        "wall": [
+          [23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], \
+          [29, 10], [29, 11], [29, 12], [29, 13], [29, 14], \
+          [15, 0], [15, 1], [15, 2], [15, 3], [15, 4], [15, 5], [15, 6], \
+          [15, 7], [15, 8], [15, 9], [0, 10], [1, 10], [2, 10], [3, 10], \
+          [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], \
+          [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [0, 20], \
+          [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], \
+          [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [13, 20], \
+          [14, 20], [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], \
+          [20, 20], [21, 20], [22, 20], [23, 20], [24, 20], [25, 20], \
+          [26, 20], [27, 20], [28, 20], [29, 20]
+        ]
+      }
+    ]
+    @map = @maps[0]
     @refresh()
     addEventListener("keydown", @handleKeyDown, false)
     @canvas.addEventListener("touchstart", @handleTouchStart, false)
     @canvas.addEventListener("touchmove", @handleTouchMove, false)
     @canvas.addEventListener("touchend", @handleTouchEnd, false)
-  createFood: () =>
-    @food = [Math.floor(Math.random() * @unitNum), \
-    Math.floor(Math.random() * @unitNum)]
-    @checkPos(@food)
-    while @isFoodCollision()
-      @food = [Math.floor(Math.random() * @unitNum), \
-      Math.floor(Math.random() * @unitNum)]
-      @checkPos(@Food)
-  isFoodCollision: () =>
-    for body in @snake.list
-      if @food[0] is body[0] and @food[1] is body[1]
-        return true
-    for brick in @map.wall
-      if @food[0] is brick[0] and @food[1] is brick[1]
-        return true
-    return false
   createSnake: () =>
     list = []
     if @map.head?
@@ -63,68 +101,22 @@ class App
           list.push([headX - i, headY])
     @snake.list = list
     @snake.move = move
-  loadMap: () ->
-    @map =
-      "head": [10, 13],
-      "move": "RIGHT",
-      "wall": [[23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], \
-              [29, 10], [29, 11], [29, 12], [29, 13], [29, 14], \
-              [15, 0], [15, 1], [15, 2], [15, 3], [15, 4], [15, 5], [15, 6], \
-              [15, 7], [15, 8], [15, 9], [0, 10], [1, 10], [2, 10], [3, 10], \
-              [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], \
-              [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [0, 20], \
-              [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], \
-              [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [13, 20], \
-              [14, 20], [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], \
-              [20, 20], [21, 20], [22, 20], [23, 20], [24, 20], [25, 20], \
-              [26, 20], [27, 20], [28, 20], [29, 20]]
-    ###
-    @map =
-      "head": null
-      "move": null
-      "wall": []
-    ###
-  handleKeyDown: (event) =>
-    switch event.keyCode
-      when 38 then move = "UP"
-      when 40 then move = "DOWN"
-      when 37 then move = "LEFT"
-      when 39 then move = "RIGHT"
-      when 87 then move = "UP"
-      when 83 then move = "DOWN"
-      when 65 then move = "LEFT"
-      when 68 then move = "RIGHT"
-      when 32
-        event.preventDefault()
-        @switchButton.onclick()
-      when 13
-        event.preventDefault()
-        @refreshButton.onclick()
-    if move?
-      event.preventDefault()
-      @moveQueue.push(move)
-  handleTouchStart: (event) =>
-    if event.touches.length > 1 or event.targetTouches.length > 1
-      return -1
-    @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
-    event.preventDefault()
-  handleTouchMove: (event) ->
-    event.preventDefault()
-  handleTouchEnd: (event) =>
-    if event.touches.length or event.targetTouches.length > 0
-      return -1
-    dx = event.changedTouches[0].clientX - @touchStart[0]
-    dy = event.changedTouches[0].clientY - @touchStart[1]
-    absDx = Math.abs(dx)
-    absDy = Math.abs(dy)
-    @touchStart = []
-    if Math.max(absDx, absDy) > 30
-      move = (if absDx > absDy
-        (if dx > 0 then "RIGHT" else "LEFT")
-      else
-        (if dy > 0 then "DOWN" else "UP"))
-      event.preventDefault()
-      @moveQueue.push(move)
+  createFood: () =>
+    @food = [Math.floor(Math.random() * @unitNum), \
+    Math.floor(Math.random() * @unitNum)]
+    @food = @checkPos(@food)
+    while @isFoodCollision()
+      @food = [Math.floor(Math.random() * @unitNum), \
+      Math.floor(Math.random() * @unitNum)]
+      @food = @checkPos(@Food)
+  isFoodCollision: () =>
+    for body in @snake.list
+      if @food[0] is body[0] and @food[1] is body[1]
+        return true
+    for brick in @map.wall
+      if @food[0] is brick[0] and @food[1] is brick[1]
+        return true
+    return false
   changeSnakeMove: () =>
     while @moveQueue.length and \
     (@snake.move is @opposite[@moveQueue[0]] or \
@@ -199,6 +191,69 @@ class App
     @ctx.fillStyle = "rgba(200, 0, 0, 1)"
     @ctx.fillRect(@snake.list[0][0] * @unitSize, \
     @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
+    @ctx.strokeStyle = "rgba(0, 0, 0, 1)"
+    @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
+  handleKeyDown: (event) =>
+    switch event.keyCode
+      when 38 then move = "UP"
+      when 40 then move = "DOWN"
+      when 37 then move = "LEFT"
+      when 39 then move = "RIGHT"
+      when 87 then move = "UP"
+      when 83 then move = "DOWN"
+      when 65 then move = "LEFT"
+      when 68 then move = "RIGHT"
+      when 32
+        event.preventDefault()
+        @switchButton.onclick()
+      when 13
+        event.preventDefault()
+        @refreshButton.onclick()
+    if move?
+      event.preventDefault()
+      @moveQueue.push(move)
+  handleTouchStart: (event) =>
+    if event.touches.length > 1 or event.targetTouches.length > 1
+      return -1
+    @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
+    event.preventDefault()
+  handleTouchMove: (event) ->
+    event.preventDefault()
+  handleTouchEnd: (event) =>
+    if event.touches.length or event.targetTouches.length > 0
+      return -1
+    dx = event.changedTouches[0].clientX - @touchStart[0]
+    dy = event.changedTouches[0].clientY - @touchStart[1]
+    absDx = Math.abs(dx)
+    absDy = Math.abs(dy)
+    @touchStart = []
+    if Math.max(absDx, absDy) > 30
+      move = (if absDx > absDy
+        (if dx > 0 then "RIGHT" else "LEFT")
+      else
+        (if dy > 0 then "DOWN" else "UP"))
+      event.preventDefault()
+      @moveQueue.push(move)
+  setSpeed: () =>
+    if @speedRadio[0].checked
+      @interval = 200
+      @refresh()
+    else if @speedRadio[2].checked
+      @interval = 100
+      @refresh()
+    else
+      @interval = 150
+      @refresh()
+  setMap: () =>
+    if @mapRadio[1].checked
+      @map = @maps[1]
+      @refresh()
+    else if @mapRadio[2].checked
+      @map = @maps[2]
+      @refresh()
+    else
+      @map = @maps[0]
+      @refresh()
   main: () =>
     if @moveSnake() is -1 then @death()
     @renderPresent()
@@ -214,23 +269,12 @@ class App
     clearInterval(@timerID)
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
-  setSpeed: () =>
-    if @speedRadio[0].checked
-      @interval = 200
-      @refresh()
-    else if @speedRadio[2].checked
-      @interval = 100
-      @refresh()
-    else
-      @interval = 150
-      @refresh()
   refresh: () =>
     if @timerID?
       clearInterval(@timerID)
     @moveQueue = []
     @food = []
     @snake = {}
-    @loadMap()
     @createSnake()
     @createFood()
     @checkAllPos()
@@ -239,8 +283,5 @@ class App
     @switchButton.onclick = @start
     @refreshButton.innerHTML = "重来"
     @refreshButton.onclick = @refresh
-    @speedRadio[0].onclick = @setSpeed
-    @speedRadio[1].onclick = @setSpeed
-    @speedRadio[2].onclick = @setSpeed
 
 app = new App()

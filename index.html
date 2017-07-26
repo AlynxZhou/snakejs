@@ -13,19 +13,33 @@
 	</head>
 	<body>
 		<h1>喵's Snake</h1>
-		<h4>空格暂停/开始，回车重来</h4>
-		<h4>WASD、方向键或划屏操纵</h4>
-		<button id="switch" class="btn btn-danger"></button>
-		<button id="refresh" class="btn btn-danger"></button>
-		<hr>
-		<canvas id="canvas" width="300" height="300"></canvas>
-		<h4>运动速度</h4>
-		<input type="radio" id="radio0" name="radio" value="low">
-		<label for="radio1">低</label>
-		<input type="radio" id="radio1" name="radio" value="mid" checked>
-		<label for="radio2">中</label>
-		<input type="radio" id="radio2" name="radio" value="high">
-		<label for="radio2">高</label>
-		<script type="text/javascript" src="js/snake.js"></script>
+		<div class="game">
+			<div class="description">
+				<h4>空格暂停/开始，回车重来</h4>
+				<h4>WASD、方向键或划屏操纵</h4>
+			</div>
+			<canvas id="canvas" width="300" height="300"></canvas>
+			<div class="buttons">
+				<button id="switch" class="btn btn-danger"></button>
+				<button id="refresh" class="btn btn-danger"></button>
+			</div>
+			<div class="settings">
+				<h4>运动速度</h4>
+				<input type="radio" id="speed0" name="speed" value="low">
+				<label for="radio1">低</label>
+				<input type="radio" id="speed1" name="speed" value="mid" checked>
+				<label for="radio2">中</label>
+				<input type="radio" id="speed2" name="speed" value="high">
+				<label for="radio2">高</label>
+				<h4>选择地图</h4>
+				<input type="radio" id="map0" name="map" value="map0" checked>
+				<label for="radio1">无地图</label>
+				<input type="radio" id="map1" name="map" value="map1">
+				<label for="radio2">地图一</label>
+				<input type="radio" id="map2" name="map" value="map2">
+				<label for="radio2">地图二</label>
+			</div>
+			<script type="text/javascript" src="js/snake.js"></script>
+		</div>
 	</body>
 </html>

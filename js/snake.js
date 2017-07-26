@@ -6,11 +6,15 @@
   App = (function() {
     function App() {
       this.refresh = bind(this.refresh, this);
-      this.setSpeed = bind(this.setSpeed, this);
       this.death = bind(this.death, this);
       this.stop = bind(this.stop, this);
       this.start = bind(this.start, this);
       this.main = bind(this.main, this);
+      this.setMap = bind(this.setMap, this);
+      this.setSpeed = bind(this.setSpeed, this);
+      this.handleTouchEnd = bind(this.handleTouchEnd, this);
+      this.handleTouchStart = bind(this.handleTouchStart, this);
+      this.handleKeyDown = bind(this.handleKeyDown, this);
       this.renderPresent = bind(this.renderPresent, this);
       this.checkHeadCollision = bind(this.checkHeadCollision, this);
       this.checkAllPos = bind(this.checkAllPos, this);
@@ -19,17 +23,21 @@
       this.deleteSnakeTail = bind(this.deleteSnakeTail, this);
       this.insertSnakeHead = bind(this.insertSnakeHead, this);
       this.changeSnakeMove = bind(this.changeSnakeMove, this);
-      this.handleTouchEnd = bind(this.handleTouchEnd, this);
-      this.handleTouchStart = bind(this.handleTouchStart, this);
-      this.handleKeyDown = bind(this.handleKeyDown, this);
-      this.createSnake = bind(this.createSnake, this);
       this.isFoodCollision = bind(this.isFoodCollision, this);
       this.createFood = bind(this.createFood, this);
+      this.createSnake = bind(this.createSnake, this);
       this.canvas = document.getElementById("canvas");
       this.ctx = this.canvas.getContext("2d");
       this.switchButton = document.getElementById("switch");
       this.refreshButton = document.getElementById("refresh");
-      this.speedRadio = [document.getElementById("radio0"), document.getElementById("radio1"), document.getElementById("radio2")];
+      this.speedRadio = [document.getElementById("speed0"), document.getElementById("speed1"), document.getElementById("speed2")];
+      this.mapRadio = [document.getElementById("map0"), document.getElementById("map1"), document.getElementById("map2")];
+      this.speedRadio[0].onclick = this.setSpeed;
+      this.speedRadio[1].onclick = this.setSpeed;
+      this.speedRadio[2].onclick = this.setSpeed;
+      this.mapRadio[0].onclick = this.setMap;
+      this.mapRadio[1].onclick = this.setMap;
+      this.mapRadio[2].onclick = this.setMap;
       this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
       this.timerID = null;
@@ -42,43 +50,28 @@
         "RIGHT": "LEFT"
       };
       this.interval = 150;
+      this.maps = [
+        {
+          "head": null,
+          "move": null,
+          "wall": []
+        }, {
+          "head": [14, 14],
+          "move": "RIGHT",
+          "wall": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [29, 1], [29, 2], [29, 3], [29, 4], [29, 5], [29, 6], [0, 29], [1, 29], [2, 29], [3, 29], [4, 29], [5, 29], [6, 29], [0, 23], [0, 24], [0, 25], [0, 26], [0, 27], [0, 28], [23, 29], [24, 29], [25, 29], [26, 29], [27, 29], [28, 29], [29, 29], [29, 23], [29, 24], [29, 25], [29, 26], [29, 27], [29, 28], [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [16, 10], [17, 10], [18, 10], [19, 10], [10, 19], [11, 19], [12, 19], [13, 19], [14, 19], [15, 19], [16, 19], [17, 19], [18, 19], [19, 19]]
+        }, {
+          "head": [10, 13],
+          "move": "RIGHT",
+          "wall": [[23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [29, 10], [29, 11], [29, 12], [29, 13], [29, 14], [15, 0], [15, 1], [15, 2], [15, 3], [15, 4], [15, 5], [15, 6], [15, 7], [15, 8], [15, 9], [0, 10], [1, 10], [2, 10], [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [0, 20], [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [13, 20], [14, 20], [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], [20, 20], [21, 20], [22, 20], [23, 20], [24, 20], [25, 20], [26, 20], [27, 20], [28, 20], [29, 20]]
+        }
+      ];
+      this.map = this.maps[0];
       this.refresh();
       addEventListener("keydown", this.handleKeyDown, false);
       this.canvas.addEventListener("touchstart", this.handleTouchStart, false);
       this.canvas.addEventListener("touchmove", this.handleTouchMove, false);
       this.canvas.addEventListener("touchend", this.handleTouchEnd, false);
     }
-
-    App.prototype.createFood = function() {
-      var results;
-      this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
-      this.checkPos(this.food);
-      results = [];
-      while (this.isFoodCollision()) {
-        this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
-        results.push(this.checkPos(this.Food));
-      }
-      return results;
-    };
-
-    App.prototype.isFoodCollision = function() {
-      var body, brick, k, l, len, len1, ref, ref1;
-      ref = this.snake.list;
-      for (k = 0, len = ref.length; k < len; k++) {
-        body = ref[k];
-        if (this.food[0] === body[0] && this.food[1] === body[1]) {
-          return true;
-        }
-      }
-      ref1 = this.map.wall;
-      for (l = 0, len1 = ref1.length; l < len1; l++) {
-        brick = ref1[l];
-        if (this.food[0] === brick[0] && this.food[1] === brick[1]) {
-          return true;
-        }
-      }
-      return false;
-    };
 
     App.prototype.createSnake = function() {
       var headX, headY, i, k, list, move;
@@ -114,89 +107,35 @@
       return this.snake.move = move;
     };
 
-    App.prototype.loadMap = function() {
-      return this.map = {
-        "head": [10, 13],
-        "move": "RIGHT",
-        "wall": [[23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], [29, 10], [29, 11], [29, 12], [29, 13], [29, 14], [15, 0], [15, 1], [15, 2], [15, 3], [15, 4], [15, 5], [15, 6], [15, 7], [15, 8], [15, 9], [0, 10], [1, 10], [2, 10], [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [11, 10], [12, 10], [13, 10], [14, 10], [15, 10], [0, 20], [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [13, 20], [14, 20], [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], [20, 20], [21, 20], [22, 20], [23, 20], [24, 20], [25, 20], [26, 20], [27, 20], [28, 20], [29, 20]]
-      };
-
-      /*
-      @map =
-        "head": null
-        "move": null
-        "wall": []
-       */
+    App.prototype.createFood = function() {
+      var results;
+      this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
+      this.food = this.checkPos(this.food);
+      results = [];
+      while (this.isFoodCollision()) {
+        this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
+        results.push(this.food = this.checkPos(this.Food));
+      }
+      return results;
     };
 
-    App.prototype.handleKeyDown = function(event) {
-      var move;
-      switch (event.keyCode) {
-        case 38:
-          move = "UP";
-          break;
-        case 40:
-          move = "DOWN";
-          break;
-        case 37:
-          move = "LEFT";
-          break;
-        case 39:
-          move = "RIGHT";
-          break;
-        case 87:
-          move = "UP";
-          break;
-        case 83:
-          move = "DOWN";
-          break;
-        case 65:
-          move = "LEFT";
-          break;
-        case 68:
-          move = "RIGHT";
-          break;
-        case 32:
-          event.preventDefault();
-          this.switchButton.onclick();
-          break;
-        case 13:
-          event.preventDefault();
-          this.refreshButton.onclick();
+    App.prototype.isFoodCollision = function() {
+      var body, brick, k, l, len, len1, ref, ref1;
+      ref = this.snake.list;
+      for (k = 0, len = ref.length; k < len; k++) {
+        body = ref[k];
+        if (this.food[0] === body[0] && this.food[1] === body[1]) {
+          return true;
+        }
       }
-      if (move != null) {
-        event.preventDefault();
-        return this.moveQueue.push(move);
+      ref1 = this.map.wall;
+      for (l = 0, len1 = ref1.length; l < len1; l++) {
+        brick = ref1[l];
+        if (this.food[0] === brick[0] && this.food[1] === brick[1]) {
+          return true;
+        }
       }
-    };
-
-    App.prototype.handleTouchStart = function(event) {
-      if (event.touches.length > 1 || event.targetTouches.length > 1) {
-        return -1;
-      }
-      this.touchStart = [event.touches[0].clientX, event.touches[0].clientY];
-      return event.preventDefault();
-    };
-
-    App.prototype.handleTouchMove = function(event) {
-      return event.preventDefault();
-    };
-
-    App.prototype.handleTouchEnd = function(event) {
-      var absDx, absDy, dx, dy, move;
-      if (event.touches.length || event.targetTouches.length > 0) {
-        return -1;
-      }
-      dx = event.changedTouches[0].clientX - this.touchStart[0];
-      dy = event.changedTouches[0].clientY - this.touchStart[1];
-      absDx = Math.abs(dx);
-      absDy = Math.abs(dy);
-      this.touchStart = [];
-      if (Math.max(absDx, absDy) > 30) {
-        move = (absDx > absDy ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP"));
-        event.preventDefault();
-        return this.moveQueue.push(move);
-      }
+      return false;
     };
 
     App.prototype.changeSnakeMove = function() {
@@ -330,7 +269,105 @@
         this.ctx.fillRect(body[0] * this.unitSize, body[1] * this.unitSize, this.unitSize, this.unitSize);
       }
       this.ctx.fillStyle = "rgba(200, 0, 0, 1)";
-      return this.ctx.fillRect(this.snake.list[0][0] * this.unitSize, this.snake.list[0][1] * this.unitSize, this.unitSize, this.unitSize);
+      this.ctx.fillRect(this.snake.list[0][0] * this.unitSize, this.snake.list[0][1] * this.unitSize, this.unitSize, this.unitSize);
+      this.ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+      return this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+    };
+
+    App.prototype.handleKeyDown = function(event) {
+      var move;
+      switch (event.keyCode) {
+        case 38:
+          move = "UP";
+          break;
+        case 40:
+          move = "DOWN";
+          break;
+        case 37:
+          move = "LEFT";
+          break;
+        case 39:
+          move = "RIGHT";
+          break;
+        case 87:
+          move = "UP";
+          break;
+        case 83:
+          move = "DOWN";
+          break;
+        case 65:
+          move = "LEFT";
+          break;
+        case 68:
+          move = "RIGHT";
+          break;
+        case 32:
+          event.preventDefault();
+          this.switchButton.onclick();
+          break;
+        case 13:
+          event.preventDefault();
+          this.refreshButton.onclick();
+      }
+      if (move != null) {
+        event.preventDefault();
+        return this.moveQueue.push(move);
+      }
+    };
+
+    App.prototype.handleTouchStart = function(event) {
+      if (event.touches.length > 1 || event.targetTouches.length > 1) {
+        return -1;
+      }
+      this.touchStart = [event.touches[0].clientX, event.touches[0].clientY];
+      return event.preventDefault();
+    };
+
+    App.prototype.handleTouchMove = function(event) {
+      return event.preventDefault();
+    };
+
+    App.prototype.handleTouchEnd = function(event) {
+      var absDx, absDy, dx, dy, move;
+      if (event.touches.length || event.targetTouches.length > 0) {
+        return -1;
+      }
+      dx = event.changedTouches[0].clientX - this.touchStart[0];
+      dy = event.changedTouches[0].clientY - this.touchStart[1];
+      absDx = Math.abs(dx);
+      absDy = Math.abs(dy);
+      this.touchStart = [];
+      if (Math.max(absDx, absDy) > 30) {
+        move = (absDx > absDy ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP"));
+        event.preventDefault();
+        return this.moveQueue.push(move);
+      }
+    };
+
+    App.prototype.setSpeed = function() {
+      if (this.speedRadio[0].checked) {
+        this.interval = 200;
+        return this.refresh();
+      } else if (this.speedRadio[2].checked) {
+        this.interval = 100;
+        return this.refresh();
+      } else {
+        this.interval = 150;
+        return this.refresh();
+      }
+    };
+
+    App.prototype.setMap = function() {
+      if (this.mapRadio[1].checked) {
+        this.map = this.maps[1];
+        return this.refresh();
+      } else if (this.mapRadio[2].checked) {
+        this.map = this.maps[2];
+        return this.refresh();
+      } else {
+        this.map = this.maps[0];
+        return this.refresh();
+      }
     };
 
     App.prototype.main = function() {
@@ -358,19 +395,6 @@
       return this.switchButton.onclick = this.refresh;
     };
 
-    App.prototype.setSpeed = function() {
-      if (this.speedRadio[0].checked) {
-        this.interval = 200;
-        return this.refresh();
-      } else if (this.speedRadio[2].checked) {
-        this.interval = 100;
-        return this.refresh();
-      } else {
-        this.interval = 150;
-        return this.refresh();
-      }
-    };
-
     App.prototype.refresh = function() {
       if (this.timerID != null) {
         clearInterval(this.timerID);
@@ -378,7 +402,6 @@
       this.moveQueue = [];
       this.food = [];
       this.snake = {};
-      this.loadMap();
       this.createSnake();
       this.createFood();
       this.checkAllPos();
@@ -386,10 +409,7 @@
       this.switchButton.innerHTML = "开始";
       this.switchButton.onclick = this.start;
       this.refreshButton.innerHTML = "重来";
-      this.refreshButton.onclick = this.refresh;
-      this.speedRadio[0].onclick = this.setSpeed;
-      this.speedRadio[1].onclick = this.setSpeed;
-      return this.speedRadio[2].onclick = this.setSpeed;
+      return this.refreshButton.onclick = this.refresh;
     };
 
     return App;

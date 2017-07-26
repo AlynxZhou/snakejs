@@ -32,18 +32,6 @@ body ::-webkit-scrollbar-thumb {
 	background-color: #ddd
 }
 
-.mod_btn,
-.mod_btn_green {
-	border-radius: 2px;
-	font-size: 14px;
-	margin-right: 6px;
-	padding: 0 23px;
-	height: 38px;
-	line-height: 38px;
-	display: inline-block;
-	white-space: nowrap
-}
-
 * {
 	margin: 0;
 	padding: 0;
@@ -139,8 +127,4 @@ button {
 	padding: 10px 30px 10px 30px;
 	margin: 10px 30px 10px 30px;
 	text-align: center;
-}
-
-canvas {
-	border: 1px solid black;
 }
