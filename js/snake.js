@@ -289,6 +289,7 @@
       this.snake = {};
       this.createSnake();
       this.createFood();
+      this.checkAllPos();
       this.renderPresent();
       this.switchButton.innerHTML = "开始";
       this.switchButton.onclick = this.start;

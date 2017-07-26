@@ -163,6 +163,7 @@ class App
     @snake = {}
     @createSnake()
     @createFood()
+    @checkAllPos()
     @renderPresent()
     @switchButton.innerHTML = "开始"
     @switchButton.onclick = @start
