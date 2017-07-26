@@ -1,0 +1,146 @@
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px
+}
+
+::-webkit-scrollbar-track {
+	background: 0 0
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #ccc;
+	border-radius: 5px
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: #666
+}
+
+::-webkit-scrollbar-corner {
+	background-color: #535353
+}
+
+::-webkit-scrollbar-resizer {
+	background-color: #FF6E00
+}
+
+body ::-webkit-scrollbar {
+	width: 8px
+}
+
+body ::-webkit-scrollbar-thumb {
+	background-color: #ddd
+}
+
+.mod_btn,
+.mod_btn_green {
+	border-radius: 2px;
+	font-size: 14px;
+	margin-right: 6px;
+	padding: 0 23px;
+	height: 38px;
+	line-height: 38px;
+	display: inline-block;
+	white-space: nowrap
+}
+
+* {
+	margin: 0;
+	padding: 0;
+}
+
+::selection {
+	background: #222;
+	color: white;
+}
+
+.sidebar {
+	float: left;
+	width: 30%;
+	box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	padding: 20px 20px 20px 20px;
+	// background-color: green;
+	margin-left: 10px;
+}
+
+.display {
+	float: right;
+	width: 65%;
+	// background-color: orange;
+	margin-right: 10px;
+}
+
+.busuanzi {
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+a {
+	color: #333;
+}
+
+p {
+	margin: 20px 0;
+}
+
+ul,
+ol {
+	//list-style: none;
+}
+
+body {
+	font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", arial, sans-serif;
+	color: #333;
+	text-shadow: 4px 4px 4px #aaa;
+	position: relative;
+	margin: 20px auto 20px auto;
+	width: auto;
+	text-align: center;
+	position: relative;
+	//top: -10px;
+	//opacity: 0;
+}
+
+@media (max-width: 767px) {
+	body {
+		margin-top: 20px;
+		width: auto;
+	}
+
+	.sidebar {
+		float: none;
+		width: auto;
+		margin-left: none;
+	}
+
+	.display {
+		float: none;
+		width: auto;
+		margin-right: none;
+	}
+}
+
+hr {
+	margin: 40px 0;
+	height: 3px;
+	border: none;
+	margin-left: auto;
+	margin-right: auto;
+	width: auto;
+	position: relative;
+	display: block;
+	box-sizing: content-box;
+	background-color: #ddd;
+	background-image: repeating-linear-gradient(-45deg, #fff, #fff 4px, transparent 4px, transparent 8px);
+}
+
+button {
+	font-size: 30px;
+	padding: 10px 30px 10px 30px;
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+canvas {
+	border: 1px solid black;
+}
