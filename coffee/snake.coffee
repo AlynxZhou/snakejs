@@ -120,7 +120,8 @@ class App
   changeSnakeMove: () =>
     while @moveQueue.length and \
     (@snake.move is @opposite[@moveQueue[0]] or \
-    @moveQueue[0] is @moveQueue[1])
+    @moveQueue[0] is @moveQueue[1] or \
+    @snake.move is @moveQueue[0])
       @moveQueue.shift()
     if @moveQueue.length
       @snake.move = @moveQueue.shift()

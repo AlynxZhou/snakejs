@@ -139,7 +139,7 @@
     };
 
     App.prototype.changeSnakeMove = function() {
-      while (this.moveQueue.length && (this.snake.move === this.opposite[this.moveQueue[0]] || this.moveQueue[0] === this.moveQueue[1])) {
+      while (this.moveQueue.length && (this.snake.move === this.opposite[this.moveQueue[0]] || this.moveQueue[0] === this.moveQueue[1] || this.snake.move === this.moveQueue[0])) {
         this.moveQueue.shift();
       }
       if (this.moveQueue.length) {
