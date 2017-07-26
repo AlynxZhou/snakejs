@@ -23,20 +23,28 @@ class App
     @food = [Math.floor(Math.random() * @unitNum), \
     Math.floor(Math.random() * @unitNum)]
     @checkPos(@food)
-    while @isFoodInSnake()
+    while @isFoodCollision()
       @food = [Math.floor(Math.random() * @unitNum), \
       Math.floor(Math.random() * @unitNum)]
       @checkPos(@Food)
-  isFoodInSnake: () =>
+  isFoodCollision: () =>
     for body in @snake.list
       if @food[0] is body[0] and @food[1] is body[1]
+        return true
+    for brick in @wall
+      if @food[0] is brick[0] and @food[1] is brick[1]
         return true
     return false
   createSnake: () =>
     list = []
+    ###
     headX = Math.floor(Math.random() * @unitNum)
     headY = Math.floor(Math.random() * @unitNum)
     move = @directions[Math.floor(Math.random() * @directions.length)]
+    ###
+    headX = 10
+    headY = 13
+    move = "RIGHT"
     for i in [0...4]
       switch move
         when "UP"
@@ -130,25 +138,40 @@ class App
   checkAllPos: () =>
     @food = @checkPos(@food)
     @snake.list = (@checkPos(body) for body in @snake.list)
+    @wall = (@checkPos(brick) for brick in @wall)
   checkHeadCollision: () =>
     for body in @snake.list[1...(@snake.list.length - 1)]
       if @snake.list[0][0] is body[0] and @snake.list[0][1] is body[1]
+        return -1
+    for brick in @wall
+      if @snake.list[0][0] is brick[0] and @snake.list[0][1] is brick[1]
         return -1
     if @snake.list[0][0] is @food[0] and @snake.list[0][1] is @food[1]
       return 1
     return 0
   renderPresent: () =>
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
-    @ctx.fillStyle = "rgba(0, 0, 200, 0.7)"
-    @ctx.fillRect(@food[0] * @unitSize, @food[1] * @unitSize, \
-    @unitSize, @unitSize)
-    @ctx.fillStyle = "rgba(200, 0, 0, 0.7)"
-    @ctx.fillRect(@snake.list[0][0] * @unitSize, \
-    @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
-    for body in @snake.list[1...@snake.list.length]
+    for i in [0...@unitNum]
+      for j in [0...@unitNum]
+        if (i + j) % 2
+          @ctx.fillStyle = "rgba(200, 200, 200, 0.5)"
+        else
+          @ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+        @ctx.fillRect(i * @unitSize, j * @unitSize, @unitSize, @unitSize)
+    for brick in @wall
       @ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
+      @ctx.fillRect(brick[0] * @unitSize, brick[1] * @unitSize, \
+      @unitSize, @unitSize)
+    @ctx.strokeStyle = "rgba(0, 100, 100, 1)"
+    @ctx.strokeRect(@food[0] * @unitSize, @food[1] * @unitSize, \
+    @unitSize, @unitSize)
+    for body in @snake.list[1...@snake.list.length]
+      @ctx.fillStyle = "rgba(100, 100, 200, 1)"
       @ctx.fillRect(body[0] * @unitSize, body[1] * @unitSize, \
       @unitSize, @unitSize)
+    @ctx.fillStyle = "rgba(200, 0, 0, 1)"
+    @ctx.fillRect(@snake.list[0][0] * @unitSize, \
+    @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
   main: () =>
     if @moveSnake() is -1 then @death()
     @renderPresent()
@@ -170,6 +193,17 @@ class App
     @moveQueue = []
     @food = []
     @snake = {}
+    @wall = [[23, 0], [24, 0], [25, 0], [26, 0], [27, 0], [28, 0], [29, 0], \
+    [29, 9], [29, 10], [29, 11], [29, 12], [29, 13], [29, 14], \
+    [15, 0], [15, 1], [15, 2], [15, 3], [15, 4], [15, 5], [15, 6], \
+    [15, 7], [15, 8], [15, 9], [0, 10], [1, 10], [2, 10], [3, 10], [4, 10], \
+    [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10], [11, 10], \
+    [12, 10], [13, 10], [14, 10], [15, 10], \
+    [0, 20], [1, 20], [2, 20], [3, 20], [4, 20], [5, 20], [6, 20], [7, 20], \
+    [8, 20], [9, 20], [10, 20], [11, 20], [12, 20], [13, 20], [14, 20], \
+    [15, 20], [16, 20], [17, 20], [18, 20], [19, 20], [20, 20], [21, 20], \
+    [22, 20], [23, 20], [24, 20], [25, 20], [26, 20], [27, 20], [28, 20], \
+    [29, 20]]
     @createSnake()
     @createFood()
     @checkAllPos()
