@@ -32,6 +32,7 @@
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
       this.timerID = null;
       this.touchStart = [];
+      this.directions = ["UP", "DOWN", "LEFT", "RIGHT"];
       this.opposite = {
         "UP": "DOWN",
         "DOWN": "UP",
@@ -70,14 +71,26 @@
     };
 
     App.prototype.createSnake = function() {
-      var head_x, head_y, i, j, list, move;
+      var headX, headY, i, j, list, move;
       list = [];
-      head_x = Math.floor(Math.random() * this.unitNum);
-      head_y = Math.floor(Math.random() * this.unitNum);
+      headX = Math.floor(Math.random() * this.unitNum);
+      headY = Math.floor(Math.random() * this.unitNum);
+      move = this.directions[Math.floor(Math.random() * this.directions.length)];
       for (i = j = 0; j < 4; i = ++j) {
-        list.push([head_x - i, head_y]);
+        switch (move) {
+          case "UP":
+            list.push([headX, headY + i]);
+            break;
+          case "DOWN":
+            list.push([headX, headY - i]);
+            break;
+          case "LEFT":
+            list.push([headX + i, headY]);
+            break;
+          case "RIGHT":
+            list.push([headX - i, headY]);
+        }
       }
-      move = "RIGHT";
       this.snake.list = list;
       return this.snake.move = move;
     };
@@ -162,18 +175,18 @@
     };
 
     App.prototype.insertSnakeHead = function() {
-      var head_x, head_y;
-      head_x = this.snake.list[0][0];
-      head_y = this.snake.list[0][1];
+      var headX, headY;
+      headX = this.snake.list[0][0];
+      headY = this.snake.list[0][1];
       switch (this.snake.move) {
         case "UP":
-          return this.snake.list.unshift([head_x, head_y - 1]);
+          return this.snake.list.unshift([headX, headY - 1]);
         case "DOWN":
-          return this.snake.list.unshift([head_x, head_y + 1]);
+          return this.snake.list.unshift([headX, headY + 1]);
         case "LEFT":
-          return this.snake.list.unshift([head_x - 1, head_y]);
+          return this.snake.list.unshift([headX - 1, headY]);
         case "RIGHT":
-          return this.snake.list.unshift([head_x + 1, head_y]);
+          return this.snake.list.unshift([headX + 1, headY]);
       }
     };
 

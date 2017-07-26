@@ -8,6 +8,7 @@ class App
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerID = null
     @touchStart = []
+    @directions = ["UP", "DOWN", "LEFT", "RIGHT"]
     @opposite =
       "UP": "DOWN"
       "DOWN": "UP"
@@ -33,11 +34,19 @@ class App
     return false
   createSnake: () =>
     list = []
-    head_x = Math.floor(Math.random() * @unitNum)
-    head_y = Math.floor(Math.random() * @unitNum)
+    headX = Math.floor(Math.random() * @unitNum)
+    headY = Math.floor(Math.random() * @unitNum)
+    move = @directions[Math.floor(Math.random() * @directions.length)]
     for i in [0...4]
-      list.push([head_x - i, head_y])
-    move = "RIGHT"
+      switch move
+        when "UP"
+          list.push([headX, headY + i])
+        when "DOWN"
+          list.push([headX, headY - i])
+        when "LEFT"
+          list.push([headX + i, headY])
+        when "RIGHT"
+          list.push([headX - i, headY])
     @snake.list = list
     @snake.move = move
   handleKeyDown: (event) =>
@@ -89,17 +98,17 @@ class App
     if @moveQueue.length
       @snake.move = @moveQueue.shift()
   insertSnakeHead: () =>
-    head_x = @snake.list[0][0]
-    head_y = @snake.list[0][1]
+    headX = @snake.list[0][0]
+    headY = @snake.list[0][1]
     switch @snake.move
       when "UP"
-        @snake.list.unshift([head_x, head_y - 1])
+        @snake.list.unshift([headX, headY - 1])
       when "DOWN"
-        @snake.list.unshift([head_x, head_y + 1])
+        @snake.list.unshift([headX, headY + 1])
       when "LEFT"
-        @snake.list.unshift([head_x - 1, head_y])
+        @snake.list.unshift([headX - 1, headY])
       when "RIGHT"
-        @snake.list.unshift([head_x + 1, head_y])
+        @snake.list.unshift([headX + 1, headY])
   deleteSnakeTail: () =>
     @snake.list.pop()
   moveSnake: () =>
