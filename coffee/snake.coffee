@@ -71,7 +71,7 @@ class App
   handleTouchStart: (event) =>
     if event.touches.length > 1 or event.targetTouches.length > 1
       return -1
-    @touchStart.push([event.touches[0].clientX, event.touches[0].clientY])
+    @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
     event.preventDefault()
   handleTouchMove: (event) ->
     event.preventDefault()
@@ -82,7 +82,7 @@ class App
     dy = event.changedTouches[0].clientY - @touchStart[1]
     absDx = Math.abs(dx)
     absDy = Math.abs(dy)
-    @touchStart.shift()
+    @touchStart = []
     if Math.max(absDx, absDy) > 30
       move = (if absDx > absDy
         (if dx > 0 then "RIGHT" else "LEFT")

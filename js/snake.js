@@ -140,7 +140,7 @@
       if (event.touches.length > 1 || event.targetTouches.length > 1) {
         return -1;
       }
-      this.touchStart.push([event.touches[0].clientX, event.touches[0].clientY]);
+      this.touchStart = [event.touches[0].clientX, event.touches[0].clientY];
       return event.preventDefault();
     };
 
@@ -157,7 +157,7 @@
       dy = event.changedTouches[0].clientY - this.touchStart[1];
       absDx = Math.abs(dx);
       absDy = Math.abs(dy);
-      this.touchStart.shift();
+      this.touchStart = [];
       if (Math.max(absDx, absDy) > 30) {
         move = (absDx > absDy ? (dx > 0 ? "RIGHT" : "LEFT") : (dy > 0 ? "DOWN" : "UP"));
         event.preventDefault();
