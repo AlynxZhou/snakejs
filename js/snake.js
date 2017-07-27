@@ -16,17 +16,18 @@
       this.handleTouchStart = bind(this.handleTouchStart, this);
       this.handleKeyDown = bind(this.handleKeyDown, this);
       this.renderPresent = bind(this.renderPresent, this);
-      this.checkHeadCollision = bind(this.checkHeadCollision, this);
-      this.checkPos = bind(this.checkPos, this);
       this.moveSnake = bind(this.moveSnake, this);
       this.deleteSnakeTail = bind(this.deleteSnakeTail, this);
+      this.checkHeadCollision = bind(this.checkHeadCollision, this);
       this.insertSnakeHead = bind(this.insertSnakeHead, this);
       this.changeSnakeMove = bind(this.changeSnakeMove, this);
-      this.isFoodCollision = bind(this.isFoodCollision, this);
+      this.checkFoodCollision = bind(this.checkFoodCollision, this);
       this.createFood = bind(this.createFood, this);
       this.createSnake = bind(this.createSnake, this);
+      this.fixPos = bind(this.fixPos, this);
       this.canvas = document.getElementById("canvas");
       this.ctx = this.canvas.getContext("2d");
+      this.scoreBar = document.getElementById("score");
       this.switchButton = document.getElementById("switch");
       this.refreshButton = document.getElementById("refresh");
       this.speedRadio = [document.getElementById("speed0"), document.getElementById("speed1"), document.getElementById("speed2")];
@@ -39,7 +40,7 @@
       this.mapRadio[2].onclick = this.setMap;
       this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
-      this.timerID = null;
+      this.timerId = null;
       this.touchStart = [];
       this.directions = ["UP", "DOWN", "LEFT", "RIGHT"];
       this.opposite = {
@@ -72,6 +73,18 @@
       this.canvas.addEventListener("touchend", this.handleTouchEnd, false);
     }
 
+    App.prototype.fixPos = function(point) {
+      point[0] %= this.unitNum;
+      point[1] %= this.unitNum;
+      while (point[0] < 0) {
+        point[0] += this.unitNum;
+      }
+      while (point[1] < 0) {
+        point[1] += this.unitNum;
+      }
+      return point;
+    };
+
     App.prototype.createSnake = function() {
       var headX, headY, i, k, list, move;
       list = [];
@@ -90,16 +103,16 @@
       for (i = k = 0; k < 4; i = ++k) {
         switch (move) {
           case "UP":
-            list.push(this.checkPos([headX, headY + i]));
+            list.push(this.fixPos([headX, headY + i]));
             break;
           case "DOWN":
-            list.push(this.checkPos([headX, headY - i]));
+            list.push(this.fixPos([headX, headY - i]));
             break;
           case "LEFT":
-            list.push(this.checkPos([headX + i, headY]));
+            list.push(this.fixPos([headX + i, headY]));
             break;
           case "RIGHT":
-            list.push(this.checkPos([headX - i, headY]));
+            list.push(this.fixPos([headX - i, headY]));
         }
       }
       this.snake.list = list;
@@ -110,13 +123,13 @@
       var results;
       this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)];
       results = [];
-      while (this.isFoodCollision()) {
+      while (this.checkFoodCollision()) {
         results.push(this.food = [Math.floor(Math.random() * this.unitNum), Math.floor(Math.random() * this.unitNum)]);
       }
       return results;
     };
 
-    App.prototype.isFoodCollision = function() {
+    App.prototype.checkFoodCollision = function() {
       var body, brick, k, l, len, len1, ref, ref1;
       ref = this.snake.list;
       for (k = 0, len = ref.length; k < len; k++) {
@@ -150,44 +163,14 @@
       headY = this.snake.list[0][1];
       switch (this.snake.move) {
         case "UP":
-          return this.snake.list.unshift(this.checkPos([headX, headY - 1]));
+          return this.snake.list.unshift(this.fixPos([headX, headY - 1]));
         case "DOWN":
-          return this.snake.list.unshift(this.checkPos([headX, headY + 1]));
+          return this.snake.list.unshift(this.fixPos([headX, headY + 1]));
         case "LEFT":
-          return this.snake.list.unshift(this.checkPos([headX - 1, headY]));
+          return this.snake.list.unshift(this.fixPos([headX - 1, headY]));
         case "RIGHT":
-          return this.snake.list.unshift(this.checkPos([headX + 1, headY]));
+          return this.snake.list.unshift(this.fixPos([headX + 1, headY]));
       }
-    };
-
-    App.prototype.deleteSnakeTail = function() {
-      return this.snake.list.pop();
-    };
-
-    App.prototype.moveSnake = function() {
-      this.changeSnakeMove();
-      this.insertSnakeHead();
-      switch (this.checkHeadCollision()) {
-        case 1:
-          return this.createFood();
-        case 0:
-          return this.deleteSnakeTail();
-        case -1:
-          this.deleteSnakeTail();
-          return -1;
-      }
-    };
-
-    App.prototype.checkPos = function(point) {
-      point[0] %= this.unitNum;
-      point[1] %= this.unitNum;
-      while (point[0] < 0) {
-        point[0] += this.unitNum;
-      }
-      while (point[1] < 0) {
-        point[1] += this.unitNum;
-      }
-      return point;
     };
 
     App.prototype.checkHeadCollision = function() {
@@ -210,6 +193,26 @@
         return 1;
       }
       return 0;
+    };
+
+    App.prototype.deleteSnakeTail = function() {
+      return this.snake.list.pop();
+    };
+
+    App.prototype.moveSnake = function() {
+      this.changeSnakeMove();
+      this.insertSnakeHead();
+      switch (this.checkHeadCollision()) {
+        case 1:
+          this.score++;
+          this.scoreBar.innerHTML = this.score + " 分";
+          return this.createFood();
+        case 0:
+          return this.deleteSnakeTail();
+        case -1:
+          this.deleteSnakeTail();
+          return -1;
+      }
     };
 
     App.prototype.renderPresent = function() {
@@ -300,7 +303,7 @@
 
     App.prototype.handleTouchEnd = function(event) {
       var absDx, absDy, dx, dy, move;
-      if (event.touches.length || event.targetTouches.length > 0) {
+      if (event.touches.length > 0 || event.targetTouches.length > 0) {
         return -1;
       }
       dx = event.changedTouches[0].clientX - this.touchStart[0];
@@ -349,30 +352,33 @@
     };
 
     App.prototype.start = function() {
-      this.timerID = setInterval(this.main, this.interval);
+      this.timerId = setInterval(this.main, this.interval);
       this.switchButton.innerHTML = "暂停";
       return this.switchButton.onclick = this.stop;
     };
 
     App.prototype.stop = function() {
-      clearInterval(this.timerID);
+      clearInterval(this.timerId);
       this.switchButton.innerHTML = "继续";
       return this.switchButton.onclick = this.start;
     };
 
     App.prototype.death = function() {
-      clearInterval(this.timerID);
+      clearInterval(this.timerId);
       this.switchButton.innerHTML = "死啦";
-      return this.switchButton.onclick = this.refresh;
+      this.switchButton.onclick = this.refresh;
+      return alert("你获得了 " + this.score + " 分！");
     };
 
     App.prototype.refresh = function() {
-      if (this.timerID != null) {
-        clearInterval(this.timerID);
+      if (this.timerId != null) {
+        clearInterval(this.timerId);
       }
       this.moveQueue = [];
       this.food = [];
       this.snake = {};
+      this.score = 0;
+      this.scoreBar.innerHTML = this.score + " 分";
       this.createSnake();
       this.createFood();
       this.renderPresent();

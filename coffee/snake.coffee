@@ -2,6 +2,7 @@ class App
   constructor: () ->
     @canvas = document.getElementById("canvas")
     @ctx = @canvas.getContext("2d")
+    @scoreBar = document.getElementById("score")
     @switchButton = document.getElementById("switch")
     @refreshButton = document.getElementById("refresh")
     @speedRadio = [document.getElementById("speed0"), \
@@ -18,7 +19,7 @@ class App
     @mapRadio[2].onclick = @setMap
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
-    @timerID = null
+    @timerId = null
     @touchStart = []
     @directions = ["UP", "DOWN", "LEFT", "RIGHT"]
     @opposite = {
@@ -77,37 +78,52 @@ class App
     @canvas.addEventListener("touchstart", @handleTouchStart, false)
     @canvas.addEventListener("touchmove", @handleTouchMove, false)
     @canvas.addEventListener("touchend", @handleTouchEnd, false)
+  fixPos: (point) =>
+    # Limit point's position in 0 to unit number.
+    point[0] %= @unitNum
+    point[1] %= @unitNum
+    while point[0] < 0 then point[0] += @unitNum
+    while point[1] < 0 then point[1] += @unitNum
+    return point
   createSnake: () =>
     list = []
     if @map.head?
+      # Map has snake spawn point.
       headX = @map.head[0]
       headY = @map.head[1]
     else
+      # Map has no snake spawn point, use random point.
       headX = Math.floor(Math.random() * @unitNum)
       headY = Math.floor(Math.random() * @unitNum)
     if @map.move?
+      # Map has initial move direction.
       move = @map.move
     else
+      # Map has no initial move direction, use random direcction.
       move = @directions[Math.floor(Math.random() * @directions.length)]
+    # Set initial 4 body of snake.
     for i in [0...4]
       switch move
         when "UP"
-          list.push(@checkPos([headX, headY + i]))
+          list.push(@fixPos([headX, headY + i]))
         when "DOWN"
-          list.push(@checkPos([headX, headY - i]))
+          list.push(@fixPos([headX, headY - i]))
         when "LEFT"
-          list.push(@checkPos([headX + i, headY]))
+          list.push(@fixPos([headX + i, headY]))
         when "RIGHT"
-          list.push(@checkPos([headX - i, headY]))
+          list.push(@fixPos([headX - i, headY]))
     @snake.list = list
     @snake.move = move
   createFood: () =>
+    # Set random food.
     @food = [Math.floor(Math.random() * @unitNum), \
     Math.floor(Math.random() * @unitNum)]
-    while @isFoodCollision()
+    # If food in snake or wall, then recreate.
+    while @checkFoodCollision()
       @food = [Math.floor(Math.random() * @unitNum), \
       Math.floor(Math.random() * @unitNum)]
-  isFoodCollision: () =>
+  checkFoodCollision: () =>
+    # Check whether food in other entities' place.
     for body in @snake.list
       if @food[0] is body[0] and @food[1] is body[1]
         return true
@@ -116,43 +132,32 @@ class App
         return true
     return false
   changeSnakeMove: () =>
+    # If moveQueue has repeated directions, or has opposite directions in
+    # the head (snake cannot move back), remove all of those directions.
     while @moveQueue.length and \
     (@snake.move is @opposite[@moveQueue[0]] or \
     @moveQueue[0] is @moveQueue[1] or \
     @snake.move is @moveQueue[0])
       @moveQueue.shift()
+    # Change direction once.
     if @moveQueue.length
       @snake.move = @moveQueue.shift()
   insertSnakeHead: () =>
+    # To move a snake, first insert a head.
+    # Then you may remove the tail, and it looks like moving.
     headX = @snake.list[0][0]
     headY = @snake.list[0][1]
     switch @snake.move
       when "UP"
-        @snake.list.unshift(@checkPos([headX, headY - 1]))
+        @snake.list.unshift(@fixPos([headX, headY - 1]))
       when "DOWN"
-        @snake.list.unshift(@checkPos([headX, headY + 1]))
+        @snake.list.unshift(@fixPos([headX, headY + 1]))
       when "LEFT"
-        @snake.list.unshift(@checkPos([headX - 1, headY]))
+        @snake.list.unshift(@fixPos([headX - 1, headY]))
       when "RIGHT"
-        @snake.list.unshift(@checkPos([headX + 1, headY]))
-  deleteSnakeTail: () =>
-    @snake.list.pop()
-  moveSnake: () =>
-    @changeSnakeMove()
-    @insertSnakeHead()
-    switch @checkHeadCollision()
-      when 1 then @createFood()
-      when 0 then @deleteSnakeTail()
-      when -1
-        @deleteSnakeTail()
-        return -1
-  checkPos: (point) =>
-    point[0] %= @unitNum
-    point[1] %= @unitNum
-    while point[0] < 0 then point[0] += @unitNum
-    while point[1] < 0 then point[1] += @unitNum
-    return point
+        @snake.list.unshift(@fixPos([headX + 1, headY]))
   checkHeadCollision: () =>
+    # Check whether head eat food or knock something.
     for body in @snake.list[1...(@snake.list.length - 1)]
       if @snake.list[0][0] is body[0] and @snake.list[0][1] is body[1]
         return -1
@@ -162,7 +167,25 @@ class App
     if @snake.list[0][0] is @food[0] and @snake.list[0][1] is @food[1]
       return 1
     return 0
+  deleteSnakeTail: () =>
+    @snake.list.pop()
+  moveSnake: () =>
+    @changeSnakeMove()
+    @insertSnakeHead()
+    switch @checkHeadCollision()
+      # Food ate, create new food.
+      when 1
+        @score++
+        @scoreBar.innerHTML = "#{@score} 分"
+        @createFood()
+      # Nothing, just move forward by removing a tail.
+      when 0 then @deleteSnakeTail()
+      # Death.
+      when -1
+        @deleteSnakeTail()
+        return -1
   renderPresent: () =>
+    # Draw background.
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
     for i in [0...@unitNum]
       for j in [0...@unitNum]
@@ -171,35 +194,50 @@ class App
         else
           @ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
         @ctx.fillRect(i * @unitSize, j * @unitSize, @unitSize, @unitSize)
+    # Draw wall.
     for brick in @map.wall
       @ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
       @ctx.fillRect(brick[0] * @unitSize, brick[1] * @unitSize, \
       @unitSize, @unitSize)
+    # Draw food.
     @ctx.strokeStyle = "rgba(0, 100, 100, 1)"
     @ctx.strokeRect(@food[0] * @unitSize, @food[1] * @unitSize, \
     @unitSize, @unitSize)
+    # Draw body.
     for body in @snake.list[1...@snake.list.length]
       @ctx.fillStyle = "rgba(100, 100, 200, 1)"
       @ctx.fillRect(body[0] * @unitSize, body[1] * @unitSize, \
       @unitSize, @unitSize)
+    # Draw head.
     @ctx.fillStyle = "rgba(200, 0, 0, 1)"
     @ctx.fillRect(@snake.list[0][0] * @unitSize, \
     @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
+    # Draw border.
     @ctx.strokeStyle = "rgba(0, 0, 0, 1)"
     @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
   handleKeyDown: (event) =>
     switch event.keyCode
+      # Up arrow.
       when 38 then move = "UP"
+      # Down arrow.
       when 40 then move = "DOWN"
+      # Left arrow.
       when 37 then move = "LEFT"
+      # Right arrow.
       when 39 then move = "RIGHT"
+      # W.
       when 87 then move = "UP"
+      # S.
       when 83 then move = "DOWN"
+      # A.
       when 65 then move = "LEFT"
+      # D.
       when 68 then move = "RIGHT"
+      # Space.
       when 32
         event.preventDefault()
         @switchButton.onclick()
+      # Enter.
       when 13
         event.preventDefault()
         @refreshButton.onclick()
@@ -207,6 +245,7 @@ class App
       event.preventDefault()
       @moveQueue.push(move)
   handleTouchStart: (event) =>
+    # Only handle one finger touch.
     if event.touches.length > 1 or event.targetTouches.length > 1
       return -1
     @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
@@ -214,13 +253,15 @@ class App
   handleTouchMove: (event) ->
     event.preventDefault()
   handleTouchEnd: (event) =>
-    if event.touches.length or event.targetTouches.length > 0
+    # Only handle one finger touch.
+    if event.touches.length > 0 or event.targetTouches.length > 0
       return -1
     dx = event.changedTouches[0].clientX - @touchStart[0]
     dy = event.changedTouches[0].clientY - @touchStart[1]
     absDx = Math.abs(dx)
     absDy = Math.abs(dy)
     @touchStart = []
+    # Only handle when move distance is bigger than 30.
     if Math.max(absDx, absDy) > 30
       move = (if absDx > absDy
         (if dx > 0 then "RIGHT" else "LEFT")
@@ -252,23 +293,26 @@ class App
     if @moveSnake() is -1 then @death()
     @renderPresent()
   start: () =>
-    @timerID = setInterval(@main, @interval)
+    @timerId = setInterval(@main, @interval)
     @switchButton.innerHTML = "暂停"
     @switchButton.onclick = @stop
   stop: () =>
-    clearInterval(@timerID)
+    clearInterval(@timerId)
     @switchButton.innerHTML = "继续"
     @switchButton.onclick = @start
   death: () =>
-    clearInterval(@timerID)
+    clearInterval(@timerId)
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
+    alert("你获得了 #{@score} 分！")
   refresh: () =>
-    if @timerID?
-      clearInterval(@timerID)
+    if @timerId?
+      clearInterval(@timerId)
     @moveQueue = []
     @food = []
     @snake = {}
+    @score = 0
+    @scoreBar.innerHTML = "#{@score} 分"
     @createSnake()
     @createFood()
     @renderPresent()
