@@ -313,7 +313,8 @@ class App
       @ctx.font = "30px sans"
       @ctx.textAlign = "start"
       @ctx.textBaseline = "top"
-      topBase = 10
+      topBase = Math.floor((@canvas.height - img.height - \
+      10 - 30 - 10 - 30) / 2)
       str = "你获得了 #{@score} 分"
       text = @ctx.measureText(str)
       @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), topBase)

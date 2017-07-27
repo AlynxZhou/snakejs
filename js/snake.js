@@ -380,7 +380,7 @@
           _this.ctx.font = "30px sans";
           _this.ctx.textAlign = "start";
           _this.ctx.textBaseline = "top";
-          topBase = 10;
+          topBase = Math.floor((_this.canvas.height - img.height - 10 - 30 - 10 - 30) / 2);
           str = "你获得了 " + _this.score + " 分";
           text = _this.ctx.measureText(str);
           _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2), topBase);
