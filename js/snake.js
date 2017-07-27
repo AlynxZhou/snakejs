@@ -371,8 +371,7 @@
       this.switchButton.innerHTML = "死啦";
       this.switchButton.onclick = this.refresh;
       img = new Image();
-      img.src = "images/qrcode_transparent.png";
-      return img.onload = (function(_this) {
+      img.onload = (function(_this) {
         return function() {
           var str, text, topBase;
           _this.ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
@@ -398,6 +397,7 @@
           return _this.ctx.drawImage(img, Math.floor((_this.canvas.width - img.width) / 2), topBase + 30 + 10 + 30 + 10);
         };
       })(this);
+      return img.src = "images/qrcode_transparent.png";
     };
 
     App.prototype.refresh = function() {

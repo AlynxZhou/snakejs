@@ -306,7 +306,6 @@ class App
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
     img = new Image()
-    img.src = "images/qrcode_transparent.png"
     img.onload = () =>
       @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
       @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
@@ -335,6 +334,7 @@ class App
       # QRCode.
       @ctx.drawImage(img, Math.floor((@canvas.width - img.width) / 2), \
       topBase + 30 + 10 + 30 + 10)
+    img.src = "images/qrcode_transparent.png"
   refresh: () =>
     if @timerId?
       clearInterval(@timerId)
