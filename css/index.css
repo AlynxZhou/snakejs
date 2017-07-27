@@ -75,7 +75,7 @@ body {
 
 @media (max-width: 767px) {
 	body {
-		margin-top: 20px;
+		margin-top: 0px;
 		width: auto;
 	}
 
