@@ -25,7 +25,7 @@
       this.createFood = bind(this.createFood, this);
       this.createSnake = bind(this.createSnake, this);
       this.fixPos = bind(this.fixPos, this);
-      this.canvas = document.getElementById("canvas");
+      this.canvas = document.getElementById("snakeCanvas");
       this.ctx = this.canvas.getContext("2d");
       this.scoreBar = document.getElementById("score");
       this.switchButton = document.getElementById("switch");
@@ -345,10 +345,12 @@
     };
 
     App.prototype.main = function() {
-      if (this.moveSnake() === -1) {
-        this.death();
+      var result;
+      result = this.moveSnake();
+      this.renderPresent();
+      if (result === -1) {
+        return this.death();
       }
-      return this.renderPresent();
     };
 
     App.prototype.start = function() {
@@ -364,10 +366,38 @@
     };
 
     App.prototype.death = function() {
+      var img;
       clearInterval(this.timerId);
       this.switchButton.innerHTML = "死啦";
       this.switchButton.onclick = this.refresh;
-      return alert("你获得了 " + this.score + " 分！");
+      img = new Image();
+      img.src = "images/qrcode_transparent.png";
+      return img.onload = (function(_this) {
+        return function() {
+          var str, text, topBase;
+          _this.ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+          _this.ctx.fillRect(0, 0, _this.canvas.width, _this.canvas.height);
+          _this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+          _this.ctx.font = "30px sans";
+          _this.ctx.textAlign = "start";
+          _this.ctx.textBaseline = "top";
+          topBase = 10;
+          str = "你获得了 " + _this.score + " 分";
+          text = _this.ctx.measureText(str);
+          _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2), topBase);
+          str = "截图分享给朋友吧";
+          text = _this.ctx.measureText(str);
+          _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2), topBase + 30 + 10);
+          _this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+          str = "你获得了 " + _this.score + " 分";
+          text = _this.ctx.measureText(str);
+          _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2) + 2, topBase + 2);
+          str = "截图分享给朋友吧";
+          text = _this.ctx.measureText(str);
+          _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2) + 2, topBase + 30 + 10 + 2);
+          return _this.ctx.drawImage(img, Math.floor((_this.canvas.width - img.width) / 2), topBase + 30 + 10 + 30 + 10);
+        };
+      })(this);
     };
 
     App.prototype.refresh = function() {

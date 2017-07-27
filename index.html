@@ -7,6 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 		<link href="http://fonts.css.network/css?family=Noto+Sans:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 		<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<title>喵's Snake</title>
 		<link rel="stylesheet" href="css/index.css">
@@ -15,32 +16,43 @@
 		<h1>喵's Snake</h1>
 		<div class="game">
 			<div class="description">
-				<h4>空格暂停/开始，回车重来</h4>
-				<h4>WASD、方向键或划屏操纵</h4>
+				<p>空格暂停/开始，回车重来</p>
+				<p>WASD、方向键或划屏操纵</p>
 			</div>
-			<h4 id="score"></h4>
-			<canvas id="canvas" width="300" height="300"></canvas>
+			<div class="score">
+				<p>
+					<span id="score"></span>
+				</p>
+			</div>
+			<canvas id="snakeCanvas" width="300" height="300">
+				如果您看到这句话，说明您的浏览器不支持HTML5 Canvas。
+			</canvas>
 			<div class="buttons">
 				<button id="switch" class="btn btn-danger"></button>
 				<button id="refresh" class="btn btn-danger"></button>
 			</div>
 			<div class="settings">
-				<h4>运动速度</h4>
-				<input type="radio" id="speed0" name="speed" value="low">
+				<p>运动速度</p>
+				<input type="radio" id="speed0" name="speedRadio" value="low">
 				<label for="radio1">低</label>
-				<input type="radio" id="speed1" name="speed" value="mid" checked>
+				<input type="radio" id="speed1" name="speedRadio" value="mid" checked>
 				<label for="radio2">中</label>
-				<input type="radio" id="speed2" name="speed" value="high">
+				<input type="radio" id="speed2" name="speedRadio" value="high">
 				<label for="radio2">高</label>
-				<h4>选择地图</h4>
-				<input type="radio" id="map0" name="map" value="map0" checked>
+				<p>选择地图</p>
+				<input type="radio" id="map0" name="mapRadio" value="map0" checked>
 				<label for="radio1">无地图</label>
-				<input type="radio" id="map1" name="map" value="map1">
+				<input type="radio" id="map1" name="mapRadio" value="map1">
 				<label for="radio2">地图一</label>
-				<input type="radio" id="map2" name="map" value="map2">
+				<input type="radio" id="map2" name="mapRadio" value="map2">
 				<label for="radio2">地图二</label>
 			</div>
 			<script type="text/javascript" src="js/snake.js"></script>
+		</div>
+		<div class="busuanzi">
+			<span id="busuanzi_container_page_pv">
+				本页总访问量 <span id="busuanzi_value_page_pv"></span> 次
+			</span>
 		</div>
 	</body>
 </html>
