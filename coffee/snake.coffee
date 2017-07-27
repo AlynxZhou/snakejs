@@ -196,7 +196,7 @@ class App
         @ctx.fillRect(i * @unitSize, j * @unitSize, @unitSize, @unitSize)
     # Draw wall.
     for brick in @map.wall
-      @ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
+      @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
       @ctx.fillRect(brick[0] * @unitSize, brick[1] * @unitSize, \
       @unitSize, @unitSize)
     # Draw food.
@@ -213,7 +213,7 @@ class App
     @ctx.fillRect(@snake.list[0][0] * @unitSize, \
     @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
     # Draw border.
-    @ctx.strokeStyle = "rgba(0, 0, 0, 1)"
+    @ctx.strokeStyle = "rgba(3, 3, 3, 0.7)"
     @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
   handleKeyDown: (event) =>
     switch event.keyCode
@@ -310,7 +310,7 @@ class App
     img.onload = () =>
       @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
       @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
-      @ctx.fillStyle = "rgba(0, 0, 0, 0.7)"
+      @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
       @ctx.font = "30px sans"
       @ctx.textAlign = "start"
       @ctx.textBaseline = "top"
@@ -323,7 +323,7 @@ class App
       @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), \
       topBase + 30 + 10)
       # Text shadow.
-      @ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+      @ctx.fillStyle = "rgba(10, 10, 10, 0.5)"
       str = "你获得了 #{@score} 分"
       text = @ctx.measureText(str)
       @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2) + 2, \

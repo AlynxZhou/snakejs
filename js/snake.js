@@ -231,7 +231,7 @@
       ref2 = this.map.wall;
       for (m = 0, len = ref2.length; m < len; m++) {
         brick = ref2[m];
-        this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+        this.ctx.fillStyle = "rgba(3, 3, 3, 0.7)";
         this.ctx.fillRect(brick[0] * this.unitSize, brick[1] * this.unitSize, this.unitSize, this.unitSize);
       }
       this.ctx.strokeStyle = "rgba(0, 100, 100, 1)";
@@ -244,7 +244,7 @@
       }
       this.ctx.fillStyle = "rgba(200, 0, 0, 1)";
       this.ctx.fillRect(this.snake.list[0][0] * this.unitSize, this.snake.list[0][1] * this.unitSize, this.unitSize, this.unitSize);
-      this.ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+      this.ctx.strokeStyle = "rgba(3, 3, 3, 0.7)";
       return this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
     };
 
@@ -377,7 +377,7 @@
           var str, text, topBase;
           _this.ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
           _this.ctx.fillRect(0, 0, _this.canvas.width, _this.canvas.height);
-          _this.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+          _this.ctx.fillStyle = "rgba(3, 3, 3, 0.7)";
           _this.ctx.font = "30px sans";
           _this.ctx.textAlign = "start";
           _this.ctx.textBaseline = "top";
@@ -388,7 +388,7 @@
           str = "截图分享给朋友吧";
           text = _this.ctx.measureText(str);
           _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2), topBase + 30 + 10);
-          _this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+          _this.ctx.fillStyle = "rgba(10, 10, 10, 0.5)";
           str = "你获得了 " + _this.score + " 分";
           text = _this.ctx.measureText(str);
           _this.ctx.fillText(str, Math.floor((_this.canvas.width - text.width) / 2) + 2, topBase + 2);
