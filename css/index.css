@@ -43,8 +43,7 @@ body ::-webkit-scrollbar-thumb {
 }
 
 .busuanzi {
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin: 5px auto 5px auto;
 }
 
 a {
@@ -65,7 +64,7 @@ body {
 	color: #333;
 	text-shadow: 4px 4px 4px #aaa;
 	position: relative;
-	margin: 0px auto 0px auto;
+	margin: 5px auto 5px auto;
 	width: 960px;
 	text-align: center;
 	position: relative;
@@ -75,29 +74,19 @@ body {
 
 @media (max-width: 767px) {
 	body {
-		margin-top: 0px;
+		margin: 5px auto 5px auto;
 		width: auto;
-	}
-
-	.sidebar {
-		float: none;
-		width: auto;
-		margin-left: none;
-	}
-
-	.display {
-		float: none;
-		width: auto;
-		margin-right: none;
 	}
 }
 
+h1 {
+	margin: 5px auto 5px auto;
+}
+
 hr {
-	margin: 40px 0;
+	margin: 20px auto 20px auto;
 	height: 3px;
 	border: none;
-	margin-left: auto;
-	margin-right: auto;
 	width: auto;
 	position: relative;
 	display: block;
@@ -108,7 +97,6 @@ hr {
 
 button {
 	font-size: 30px;
-	padding: 10px 30px 10px 30px;
-	margin: 10px 30px 10px 30px;
+	margin: 5px 30px 5px 30px;
 	text-align: center;
 }
