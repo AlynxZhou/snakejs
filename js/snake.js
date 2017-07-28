@@ -633,12 +633,22 @@
           return this.switchButton.onclick = this.start;
         case "DEAD":
           this.switchButton.innerHTML = "死啦";
-          return this.switchButton.onclick = this.refresh;
+          return this.switchButton.onclick = (function(_this) {
+            return function() {
+              _this.refresh();
+              return _this.removeStorage();
+            };
+          })(this);
         case "REFRESHED":
           this.switchButton.innerHTML = "开始";
           this.switchButton.onclick = this.start;
           this.refreshButton.innerHTML = "重来";
-          return this.refreshButton.onclick = this.refresh;
+          return this.refreshButton.onclick = (function(_this) {
+            return function() {
+              _this.refresh();
+              return _this.removeStorage();
+            };
+          })(this);
       }
     };
 
