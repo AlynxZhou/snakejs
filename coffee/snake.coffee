@@ -26,7 +26,7 @@ class DomCreator
   createButton: (id, others...) =>
     button = document.createElement("button")
     button.id = id
-    if others[0]? then button.class = others[0]
+    if others[0]? then button.className = others[0]
     @parent.appendChild(button)
     return button
   createRadio: (name, value, labelHTML, id, others...) =>
@@ -36,7 +36,7 @@ class DomCreator
     radio.value = value
     label = document.createElement("label")
     label.innerHTML = labelHTML
-    label.for = id
+    label.htmlFor = id
     radio.id = id
     if others[0]? and others[0] then radio.checked = true
     @parent.appendChild(radio)

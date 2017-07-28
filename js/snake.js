@@ -58,7 +58,7 @@
       button = document.createElement("button");
       button.id = id;
       if (others[0] != null) {
-        button["class"] = others[0];
+        button.className = others[0];
       }
       this.parent.appendChild(button);
       return button;
@@ -73,7 +73,7 @@
       radio.value = value;
       label = document.createElement("label");
       label.innerHTML = labelHTML;
-      label["for"] = id;
+      label.htmlFor = id;
       radio.id = id;
       if ((others[0] != null) && others[0]) {
         radio.checked = true;
