@@ -14,41 +14,8 @@
 	</head>
 	<body>
 		<h1>喵's Snake</h1>
-		<div class="game">
-			<div class="description">
-				<p>空格暂停/开始，回车重来</p>
-				<p>WASD、方向键或划屏操纵</p>
-			</div>
-			<div class="score">
-				<p>
-					<span id="score"></span>
-				</p>
-			</div>
-			<canvas id="snakeCanvas" width="300" height="300">
-				如果您看到这句话，说明您的浏览器不支持HTML5 Canvas。
-			</canvas>
-			<div class="buttons">
-				<button id="switch" class="btn btn-danger"></button>
-				<button id="refresh" class="btn btn-danger"></button>
-			</div>
-			<div class="settings">
-				<p>运动速度</p>
-				<input type="radio" id="speed0" name="speedRadio" value="low">
-				<label for="radio1">低</label>
-				<input type="radio" id="speed1" name="speedRadio" value="mid" checked>
-				<label for="radio2">中</label>
-				<input type="radio" id="speed2" name="speedRadio" value="high">
-				<label for="radio2">高</label>
-				<p>选择地图</p>
-				<input type="radio" id="map0" name="mapRadio" value="map0" checked>
-				<label for="radio1">无地图</label>
-				<input type="radio" id="map1" name="mapRadio" value="map1">
-				<label for="radio2">地图一</label>
-				<input type="radio" id="map2" name="mapRadio" value="map2">
-				<label for="radio2">地图二</label>
-			</div>
-			<script type="text/javascript" src="js/snake.js"></script>
-		</div>
+		<div id="snakeGame"></div>
+		<script type="text/javascript" src="js/snake.js"></script>
 		<div class="busuanzi">
 			<span id="busuanzi_container_page_pv">
 				本页总访问量 <span id="busuanzi_value_page_pv"></span> 次

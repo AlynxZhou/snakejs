@@ -1,22 +1,51 @@
+class DomCreator
+  constructor: (@parentId) ->
+    @parent = document.getElementById(@parentId)
+  createPara: (innerHTML, others...) =>
+    para = document.createElement("p")
+    para.innerHTML = innerHTML
+    if others[0]? then para.id = others[0]
+    @parent.appendChild(para)
+    return para
+  createSpan: (id) =>
+    para = document.createElement("p")
+    span = document.createElement("span")
+    span.id = id
+    para.appendChild(span)
+    @parent.appendChild(para)
+    return span
+  createCanvas: (width, height, others...) =>
+    para = document.createElement("p")
+    canvas = document.createElement("canvas")
+    canvas.width = width
+    canvas.height = height
+    if others[0]? then canvas.id = others[0]
+    para.appendChild(canvas)
+    @parent.appendChild(para)
+    return canvas
+  createButton: (id, others...) =>
+    button = document.createElement("button")
+    button.id = id
+    if others[0]? then button.class = others[0]
+    @parent.appendChild(button)
+    return button
+  createRadio: (name, value, labelHTML, id, others...) =>
+    radio = document.createElement("input")
+    radio.type = "radio"
+    radio.name = name
+    radio.value = value
+    label = document.createElement("label")
+    label.innerHTML = labelHTML
+    label.for = id
+    radio.id = id
+    if others[0]? and others[0] then radio.checked = true
+    @parent.appendChild(radio)
+    @parent.appendChild(label)
+    return radio
+
 class App
-  constructor: () ->
-    @canvas = document.getElementById("snakeCanvas")
-    @ctx = @canvas.getContext("2d")
-    @scoreBar = document.getElementById("score")
-    @switchButton = document.getElementById("switch")
-    @refreshButton = document.getElementById("refresh")
-    @speedRadio = [document.getElementById("speed0"), \
-    document.getElementById("speed1"), \
-    document.getElementById("speed2")]
-    @mapRadio = [document.getElementById("map0"), \
-    document.getElementById("map1"), \
-    document.getElementById("map2")]
-    @speedRadio[0].onclick = @setSpeed
-    @speedRadio[1].onclick = @setSpeed
-    @speedRadio[2].onclick = @setSpeed
-    @mapRadio[0].onclick = @setMap
-    @mapRadio[1].onclick = @setMap
-    @mapRadio[2].onclick = @setMap
+  constructor: (DomCreator) ->
+    @createDom(DomCreator)
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerId = null
@@ -74,10 +103,30 @@ class App
     ]
     @map = @maps[0]
     @refresh()
-    addEventListener("keydown", @handleKeyDown, false)
-    @canvas.addEventListener("touchstart", @handleTouchStart, false)
-    @canvas.addEventListener("touchmove", @handleTouchMove, false)
-    @canvas.addEventListener("touchend", @handleTouchEnd, false)
+    addEventListener("keydown", @handleButtonKeyDown, false)
+  createDom: (DomCreator) =>
+    @domCreator = new DomCreator("snakeGame")
+    @domCreator.createPara("空格暂停/开始，回车重来")
+    @domCreator.createPara("WASD、方向键或划屏操纵")
+    @scoreBar = @domCreator.createSpan("score")
+    @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
+    @ctx = @canvas.getContext("2d")
+    @switchButton = @domCreator.createButton("switch", "btn btn-danger")
+    @refreshButton = @domCreator.createButton("refresh", "btn btn-danger")
+    @domCreator.createPara("选择速度")
+    @speedRadio = [@domCreator.createRadio("speed", "low", "低", "speed0"),
+    @domCreator.createRadio("speed", "mid", "中", "speed1", true),
+    @domCreator.createRadio("speed", "high", "高", "speed2")]
+    @domCreator.createPara("选择地图")
+    @mapRadio = [@domCreator.createRadio("map", "map0", "无地图", "map0", true),
+    @domCreator.createRadio("map", "map1", "地图一", "map1"),
+    @domCreator.createRadio("map", "map2", "地图二", "map2")]
+    @speedRadio[0].onclick = @setSpeed
+    @speedRadio[1].onclick = @setSpeed
+    @speedRadio[2].onclick = @setSpeed
+    @mapRadio[0].onclick = @setMap
+    @mapRadio[1].onclick = @setMap
+    @mapRadio[2].onclick = @setMap
   fixPos: (point) =>
     # Limit point's position in 0 to unit number.
     point[0] %= @unitNum
@@ -215,7 +264,17 @@ class App
     # Draw border.
     @ctx.strokeStyle = "rgba(3, 3, 3, 0.7)"
     @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
-  handleKeyDown: (event) =>
+  handleButtonKeyDown: (event) =>
+    switch event.keyCode
+      # Space.
+      when 32
+        event.preventDefault()
+        @switchButton.onclick()
+      # Enter.
+      when 13
+        event.preventDefault()
+        @refreshButton.onclick()
+  handleMoveKeyDown: (event) =>
     switch event.keyCode
       # Up arrow.
       when 38 then move = "UP"
@@ -233,14 +292,6 @@ class App
       when 65 then move = "LEFT"
       # D.
       when 68 then move = "RIGHT"
-      # Space.
-      when 32
-        event.preventDefault()
-        @switchButton.onclick()
-      # Enter.
-      when 13
-        event.preventDefault()
-        @refreshButton.onclick()
     if move?
       event.preventDefault()
       @moveQueue.push(move)
@@ -294,14 +345,26 @@ class App
     @renderPresent()
     if result is -1 then @death()
   start: () =>
+    addEventListener("keydown", @handleMoveKeyDown, false)
+    @canvas.addEventListener("touchstart", @handleTouchStart, false)
+    @canvas.addEventListener("touchmove", @handleTouchMove, false)
+    @canvas.addEventListener("touchend", @handleTouchEnd, false)
     @timerId = setInterval(@main, @interval)
     @switchButton.innerHTML = "暂停"
     @switchButton.onclick = @stop
   stop: () =>
+    removeEventListener("keydown", @handleMoveKeyDown, false)
+    @canvas.removeEventListener("touchstart", @handleTouchStart, false)
+    @canvas.removeEventListener("touchmove", @handleTouchMove, false)
+    @canvas.removeEventListener("touchend", @handleTouchEnd, false)
     clearInterval(@timerId)
     @switchButton.innerHTML = "继续"
     @switchButton.onclick = @start
   death: () =>
+    removeEventListener("keydown", @handleMoveKeyDown, false)
+    @canvas.removeEventListener("touchstart", @handleTouchStart, false)
+    @canvas.removeEventListener("touchmove", @handleTouchMove, false)
+    @canvas.removeEventListener("touchend", @handleTouchEnd, false)
     clearInterval(@timerId)
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
@@ -352,4 +415,4 @@ class App
     @refreshButton.innerHTML = "重来"
     @refreshButton.onclick = @refresh
 
-app = new App()
+app = new App(DomCreator)
