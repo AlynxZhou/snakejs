@@ -79,7 +79,8 @@ class App
       "LEFT": "RIGHT"
       "RIGHT": "LEFT"
     }
-    @interval = 150
+    @intervals = [200, 150, 100]
+    @interval = @intervals[1]
     @maps = [
       {
         "head": null
@@ -125,10 +126,6 @@ class App
     ]
     @map = @maps[0]
     @refresh()
-    if (snakeStorage = @getStorage())?
-      @loadStorage(snakeStorage)
-    else
-      @setStorage()
     addEventListener("keydown", @handleButtonKeyDown, false)
 
   createDom: (DomCreator) =>
@@ -208,11 +205,11 @@ class App
     for mapRadio in @mapRadio
       mapRadio.checked = false
     @mapRadio[snakeStorage["map"]].checked = true
-    @setMap()
+    @map = @maps[snakeStorage["map"]]
     for speedRadio in @speedRadio
       speedRadio.checked = false
     @speedRadio[snakeStorage["speed"]].checked = true
-    @setSpeed()
+    @interval = @intervals[snakeStorage["speed"]]
     @score = snakeStorage["score"]
     @status = snakeStorage["status"]
     @food = snakeStorage["food"]
@@ -453,24 +450,30 @@ class App
 
   setSpeed: () =>
     if @speedRadio[0].checked
-      @interval = 200
+      @interval = @intervals[0]
+      @removeStorage()
       @refresh()
     else if @speedRadio[2].checked
-      @interval = 100
+      @interval = @intervals[2]
+      @removeStorage()
       @refresh()
     else
-      @interval = 150
+      @interval = @intervals[1]
+      @removeStorage()
       @refresh()
 
   setMap: () =>
     if @mapRadio[1].checked
       @map = @maps[1]
+      @removeStorage()
       @refresh()
     else if @mapRadio[2].checked
       @map = @maps[2]
+      @removeStorage()
       @refresh()
     else
       @map = @maps[0]
+      @removeStorage()
       @refresh()
 
   setButtonContent: () =>
@@ -484,15 +487,15 @@ class App
       when "DEAD"
         @switchButton.innerHTML = "死啦"
         @switchButton.onclick = () =>
+          @removeStorage()
           @refresh()
-          @setStorage()
       when "REFRESHED"
         @switchButton.innerHTML = "开始"
         @switchButton.onclick = @start
         @refreshButton.innerHTML = "重来"
         @refreshButton.onclick = () =>
+          @removeStorage()
           @refresh()
-          @setStorage()
 
   main: () =>
     result = @moveSnake()
@@ -573,5 +576,9 @@ class App
     @renderPresent()
     @status = "REFRESHED"
     @setButtonContent()
+    if (snakeStorage = @getStorage())?
+      @loadStorage(snakeStorage)
+    else
+      @setStorage()
 
 app = new App(DomCreator)

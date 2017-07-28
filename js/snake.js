@@ -158,7 +158,6 @@
       this.getStorage = bind(this.getStorage, this);
       this.setStorage = bind(this.setStorage, this);
       this.createDom = bind(this.createDom, this);
-      var snakeStorage;
       this.createDom(DomCreator);
       this.unitNum = 30;
       this.unitSize = Math.floor(this.canvas.height / this.unitNum);
@@ -172,7 +171,8 @@
         "LEFT": "RIGHT",
         "RIGHT": "LEFT"
       };
-      this.interval = 150;
+      this.intervals = [200, 150, 100];
+      this.interval = this.intervals[1];
       this.maps = [
         {
           "head": null,
@@ -190,11 +190,6 @@
       ];
       this.map = this.maps[0];
       this.refresh();
-      if ((snakeStorage = this.getStorage()) != null) {
-        this.loadStorage(snakeStorage);
-      } else {
-        this.setStorage();
-      }
       addEventListener("keydown", this.handleButtonKeyDown, false);
     }
 
@@ -286,14 +281,14 @@
         mapRadio.checked = false;
       }
       this.mapRadio[snakeStorage["map"]].checked = true;
-      this.setMap();
+      this.map = this.maps[snakeStorage["map"]];
       ref1 = this.speedRadio;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         speedRadio = ref1[l];
         speedRadio.checked = false;
       }
       this.speedRadio[snakeStorage["speed"]].checked = true;
-      this.setSpeed();
+      this.interval = this.intervals[snakeStorage["speed"]];
       this.score = snakeStorage["score"];
       this.status = snakeStorage["status"];
       this.food = snakeStorage["food"];
@@ -601,13 +596,16 @@
 
     App.prototype.setSpeed = function() {
       if (this.speedRadio[0].checked) {
-        this.interval = 200;
+        this.interval = this.intervals[0];
+        this.removeStorage();
         return this.refresh();
       } else if (this.speedRadio[2].checked) {
-        this.interval = 100;
+        this.interval = this.intervals[2];
+        this.removeStorage();
         return this.refresh();
       } else {
-        this.interval = 150;
+        this.interval = this.intervals[1];
+        this.removeStorage();
         return this.refresh();
       }
     };
@@ -615,12 +613,15 @@
     App.prototype.setMap = function() {
       if (this.mapRadio[1].checked) {
         this.map = this.maps[1];
+        this.removeStorage();
         return this.refresh();
       } else if (this.mapRadio[2].checked) {
         this.map = this.maps[2];
+        this.removeStorage();
         return this.refresh();
       } else {
         this.map = this.maps[0];
+        this.removeStorage();
         return this.refresh();
       }
     };
@@ -637,8 +638,8 @@
           this.switchButton.innerHTML = "死啦";
           return this.switchButton.onclick = (function(_this) {
             return function() {
-              _this.refresh();
-              return _this.setStorage();
+              _this.removeStorage();
+              return _this.refresh();
             };
           })(this);
         case "REFRESHED":
@@ -647,8 +648,8 @@
           this.refreshButton.innerHTML = "重来";
           return this.refreshButton.onclick = (function(_this) {
             return function() {
-              _this.refresh();
-              return _this.setStorage();
+              _this.removeStorage();
+              return _this.refresh();
             };
           })(this);
       }
@@ -727,6 +728,7 @@
     };
 
     App.prototype.refresh = function() {
+      var snakeStorage;
       if (this.timerId != null) {
         clearInterval(this.timerId);
       }
@@ -738,7 +740,12 @@
       this.createFood();
       this.renderPresent();
       this.status = "REFRESHED";
-      return this.setButtonContent();
+      this.setButtonContent();
+      if ((snakeStorage = this.getStorage()) != null) {
+        return this.loadStorage(snakeStorage);
+      } else {
+        return this.setStorage();
+      }
     };
 
     return App;
