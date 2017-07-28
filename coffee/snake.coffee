@@ -127,6 +127,15 @@ class App
     @mapRadio[0].onclick = @setMap
     @mapRadio[1].onclick = @setMap
     @mapRadio[2].onclick = @setMap
+    if window.navigator.msPointerEnabled
+      # Internet Explorer 10 style
+      @eventTouchStart = "MSPointerDown"
+      @eventTouchMove = "MSPointerMove"
+      @eventTouchEnd = "MSPointerUp"
+    else
+      @eventTouchStart = "touchstart"
+      @eventTouchMove = "touchmove"
+      @eventTouchEnd = "touchend"
   fixPos: (point) =>
     # Limit point's position in 0 to unit number.
     point[0] %= @unitNum
@@ -224,8 +233,7 @@ class App
     switch @checkHeadCollision()
       # Food ate, create new food.
       when 1
-        @score++
-        @scoreBar.innerHTML = "#{@score} 分"
+        @addScore()
         @createFood()
       # Nothing, just move forward by removing a tail.
       when 0 then @deleteSnakeTail()
@@ -233,8 +241,13 @@ class App
       when -1
         @deleteSnakeTail()
         return -1
-  renderPresent: () =>
-    # Draw background.
+  addScore: () =>
+    @score++
+    @scoreBar.innerHTML = "#{@score} 分"
+  clearScore: () =>
+    @score = 0
+    @scoreBar.innerHTML = "#{@score} 分"
+  drawBackground: () =>
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
     for i in [0...@unitNum]
       for j in [0...@unitNum]
@@ -243,27 +256,32 @@ class App
         else
           @ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
         @ctx.fillRect(i * @unitSize, j * @unitSize, @unitSize, @unitSize)
-    # Draw wall.
+  drawWall: () =>
     for brick in @map.wall
       @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
       @ctx.fillRect(brick[0] * @unitSize, brick[1] * @unitSize, \
       @unitSize, @unitSize)
-    # Draw food.
+  drawFood: () =>
     @ctx.strokeStyle = "rgba(0, 100, 100, 1)"
     @ctx.strokeRect(@food[0] * @unitSize, @food[1] * @unitSize, \
     @unitSize, @unitSize)
-    # Draw body.
+  drawSnake: () =>
     for body in @snake.list[1...@snake.list.length]
       @ctx.fillStyle = "rgba(100, 100, 200, 1)"
       @ctx.fillRect(body[0] * @unitSize, body[1] * @unitSize, \
       @unitSize, @unitSize)
-    # Draw head.
     @ctx.fillStyle = "rgba(200, 0, 0, 1)"
     @ctx.fillRect(@snake.list[0][0] * @unitSize, \
     @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
-    # Draw border.
+  drawBorder: () =>
     @ctx.strokeStyle = "rgba(3, 3, 3, 0.7)"
     @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
+  renderPresent: () =>
+    @drawBackground()
+    @drawWall()
+    @drawFood()
+    @drawSnake()
+    @drawBorder()
   handleButtonKeyDown: (event) =>
     switch event.keyCode
       # Space.
@@ -346,18 +364,19 @@ class App
     if result is -1 then @death()
   start: () =>
     addEventListener("keydown", @handleMoveKeyDown, false)
-    @canvas.addEventListener("touchstart", @handleTouchStart, false)
-    @canvas.addEventListener("touchmove", @handleTouchMove, false)
-    @canvas.addEventListener("touchend", @handleTouchEnd, false)
+    @canvas.addEventListener(@eventTouchStart, @handleTouchStart, false)
+    @canvas.addEventListener(@eventTouchMove, @handleTouchMove, false)
+    @canvas.addEventListener(@eventTouchEnd, @handleTouchEnd, false)
     @timerId = setInterval(@main, @interval)
     @switchButton.innerHTML = "暂停"
     @switchButton.onclick = @stop
   stop: () =>
     removeEventListener("keydown", @handleMoveKeyDown, false)
-    @canvas.removeEventListener("touchstart", @handleTouchStart, false)
-    @canvas.removeEventListener("touchmove", @handleTouchMove, false)
-    @canvas.removeEventListener("touchend", @handleTouchEnd, false)
+    @canvas.removeEventListener(@eventTouchStart, @handleTouchStart, false)
+    @canvas.removeEventListener(@eventTouchMove, @handleTouchMove, false)
+    @canvas.removeEventListener(@eventTouchEnd, @handleTouchEnd, false)
     clearInterval(@timerId)
+    @timerId = null
     @switchButton.innerHTML = "继续"
     @switchButton.onclick = @start
   death: () =>
@@ -366,6 +385,7 @@ class App
     @canvas.removeEventListener("touchmove", @handleTouchMove, false)
     @canvas.removeEventListener("touchend", @handleTouchEnd, false)
     clearInterval(@timerId)
+    @timerId = null
     @switchButton.innerHTML = "死啦"
     @switchButton.onclick = @refresh
     img = new Image()
@@ -405,8 +425,7 @@ class App
     @moveQueue = []
     @food = []
     @snake = {}
-    @score = 0
-    @scoreBar.innerHTML = "#{@score} 分"
+    @clearScore()
     @createSnake()
     @createFood()
     @renderPresent()

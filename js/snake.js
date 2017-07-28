@@ -101,6 +101,13 @@
       this.handleMoveKeyDown = bind(this.handleMoveKeyDown, this);
       this.handleButtonKeyDown = bind(this.handleButtonKeyDown, this);
       this.renderPresent = bind(this.renderPresent, this);
+      this.drawBorder = bind(this.drawBorder, this);
+      this.drawSnake = bind(this.drawSnake, this);
+      this.drawFood = bind(this.drawFood, this);
+      this.drawWall = bind(this.drawWall, this);
+      this.drawBackground = bind(this.drawBackground, this);
+      this.clearScore = bind(this.clearScore, this);
+      this.addScore = bind(this.addScore, this);
       this.moveSnake = bind(this.moveSnake, this);
       this.deleteSnakeTail = bind(this.deleteSnakeTail, this);
       this.checkHeadCollision = bind(this.checkHeadCollision, this);
@@ -162,7 +169,16 @@
       this.speedRadio[2].onclick = this.setSpeed;
       this.mapRadio[0].onclick = this.setMap;
       this.mapRadio[1].onclick = this.setMap;
-      return this.mapRadio[2].onclick = this.setMap;
+      this.mapRadio[2].onclick = this.setMap;
+      if (window.navigator.msPointerEnabled) {
+        this.eventTouchStart = "MSPointerDown";
+        this.eventTouchMove = "MSPointerMove";
+        return this.eventTouchEnd = "MSPointerUp";
+      } else {
+        this.eventTouchStart = "touchstart";
+        this.eventTouchMove = "touchmove";
+        return this.eventTouchEnd = "touchend";
+      }
     };
 
     App.prototype.fixPos = function(point) {
@@ -296,8 +312,7 @@
       this.insertSnakeHead();
       switch (this.checkHeadCollision()) {
         case 1:
-          this.score++;
-          this.scoreBar.innerHTML = this.score + " 分";
+          this.addScore();
           return this.createFood();
         case 0:
           return this.deleteSnakeTail();
@@ -307,37 +322,78 @@
       }
     };
 
-    App.prototype.renderPresent = function() {
-      var body, brick, i, j, k, l, len, len1, m, n, ref, ref1, ref2, ref3;
+    App.prototype.addScore = function() {
+      this.score++;
+      return this.scoreBar.innerHTML = this.score + " 分";
+    };
+
+    App.prototype.clearScore = function() {
+      this.score = 0;
+      return this.scoreBar.innerHTML = this.score + " 分";
+    };
+
+    App.prototype.drawBackground = function() {
+      var i, j, k, ref, results;
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      results = [];
       for (i = k = 0, ref = this.unitNum; 0 <= ref ? k < ref : k > ref; i = 0 <= ref ? ++k : --k) {
-        for (j = l = 0, ref1 = this.unitNum; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
-          if ((i + j) % 2) {
-            this.ctx.fillStyle = "rgba(200, 200, 200, 0.5)";
-          } else {
-            this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        results.push((function() {
+          var l, ref1, results1;
+          results1 = [];
+          for (j = l = 0, ref1 = this.unitNum; 0 <= ref1 ? l < ref1 : l > ref1; j = 0 <= ref1 ? ++l : --l) {
+            if ((i + j) % 2) {
+              this.ctx.fillStyle = "rgba(200, 200, 200, 0.5)";
+            } else {
+              this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            }
+            results1.push(this.ctx.fillRect(i * this.unitSize, j * this.unitSize, this.unitSize, this.unitSize));
           }
-          this.ctx.fillRect(i * this.unitSize, j * this.unitSize, this.unitSize, this.unitSize);
-        }
+          return results1;
+        }).call(this));
       }
-      ref2 = this.map.wall;
-      for (m = 0, len = ref2.length; m < len; m++) {
-        brick = ref2[m];
+      return results;
+    };
+
+    App.prototype.drawWall = function() {
+      var brick, k, len, ref, results;
+      ref = this.map.wall;
+      results = [];
+      for (k = 0, len = ref.length; k < len; k++) {
+        brick = ref[k];
         this.ctx.fillStyle = "rgba(3, 3, 3, 0.7)";
-        this.ctx.fillRect(brick[0] * this.unitSize, brick[1] * this.unitSize, this.unitSize, this.unitSize);
+        results.push(this.ctx.fillRect(brick[0] * this.unitSize, brick[1] * this.unitSize, this.unitSize, this.unitSize));
       }
+      return results;
+    };
+
+    App.prototype.drawFood = function() {
       this.ctx.strokeStyle = "rgba(0, 100, 100, 1)";
-      this.ctx.strokeRect(this.food[0] * this.unitSize, this.food[1] * this.unitSize, this.unitSize, this.unitSize);
-      ref3 = this.snake.list.slice(1, this.snake.list.length);
-      for (n = 0, len1 = ref3.length; n < len1; n++) {
-        body = ref3[n];
+      return this.ctx.strokeRect(this.food[0] * this.unitSize, this.food[1] * this.unitSize, this.unitSize, this.unitSize);
+    };
+
+    App.prototype.drawSnake = function() {
+      var body, k, len, ref;
+      ref = this.snake.list.slice(1, this.snake.list.length);
+      for (k = 0, len = ref.length; k < len; k++) {
+        body = ref[k];
         this.ctx.fillStyle = "rgba(100, 100, 200, 1)";
         this.ctx.fillRect(body[0] * this.unitSize, body[1] * this.unitSize, this.unitSize, this.unitSize);
       }
       this.ctx.fillStyle = "rgba(200, 0, 0, 1)";
-      this.ctx.fillRect(this.snake.list[0][0] * this.unitSize, this.snake.list[0][1] * this.unitSize, this.unitSize, this.unitSize);
+      return this.ctx.fillRect(this.snake.list[0][0] * this.unitSize, this.snake.list[0][1] * this.unitSize, this.unitSize, this.unitSize);
+    };
+
+    App.prototype.drawBorder = function() {
       this.ctx.strokeStyle = "rgba(3, 3, 3, 0.7)";
       return this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+    };
+
+    App.prototype.renderPresent = function() {
+      this.drawBackground();
+      this.drawWall();
+      this.drawFood();
+      this.drawSnake();
+      return this.drawBorder();
     };
 
     App.prototype.handleButtonKeyDown = function(event) {
@@ -450,9 +506,9 @@
 
     App.prototype.start = function() {
       addEventListener("keydown", this.handleMoveKeyDown, false);
-      this.canvas.addEventListener("touchstart", this.handleTouchStart, false);
-      this.canvas.addEventListener("touchmove", this.handleTouchMove, false);
-      this.canvas.addEventListener("touchend", this.handleTouchEnd, false);
+      this.canvas.addEventListener(this.eventTouchStart, this.handleTouchStart, false);
+      this.canvas.addEventListener(this.eventTouchMove, this.handleTouchMove, false);
+      this.canvas.addEventListener(this.eventTouchEnd, this.handleTouchEnd, false);
       this.timerId = setInterval(this.main, this.interval);
       this.switchButton.innerHTML = "暂停";
       return this.switchButton.onclick = this.stop;
@@ -460,10 +516,11 @@
 
     App.prototype.stop = function() {
       removeEventListener("keydown", this.handleMoveKeyDown, false);
-      this.canvas.removeEventListener("touchstart", this.handleTouchStart, false);
-      this.canvas.removeEventListener("touchmove", this.handleTouchMove, false);
-      this.canvas.removeEventListener("touchend", this.handleTouchEnd, false);
+      this.canvas.removeEventListener(this.eventTouchStart, this.handleTouchStart, false);
+      this.canvas.removeEventListener(this.eventTouchMove, this.handleTouchMove, false);
+      this.canvas.removeEventListener(this.eventTouchEnd, this.handleTouchEnd, false);
       clearInterval(this.timerId);
+      this.timerId = null;
       this.switchButton.innerHTML = "继续";
       return this.switchButton.onclick = this.start;
     };
@@ -475,6 +532,7 @@
       this.canvas.removeEventListener("touchmove", this.handleTouchMove, false);
       this.canvas.removeEventListener("touchend", this.handleTouchEnd, false);
       clearInterval(this.timerId);
+      this.timerId = null;
       this.switchButton.innerHTML = "死啦";
       this.switchButton.onclick = this.refresh;
       img = new Image();
@@ -514,8 +572,7 @@
       this.moveQueue = [];
       this.food = [];
       this.snake = {};
-      this.score = 0;
-      this.scoreBar.innerHTML = this.score + " 分";
+      this.clearScore();
       this.createSnake();
       this.createFood();
       this.renderPresent();
