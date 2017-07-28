@@ -1,12 +1,14 @@
 class DomCreator
   constructor: (@parentId) ->
     @parent = document.getElementById(@parentId)
+
   createPara: (innerHTML, others...) =>
     para = document.createElement("p")
     para.innerHTML = innerHTML
     if others[0]? then para.id = others[0]
     @parent.appendChild(para)
     return para
+
   createSpan: (id) =>
     para = document.createElement("p")
     span = document.createElement("span")
@@ -14,6 +16,7 @@ class DomCreator
     para.appendChild(span)
     @parent.appendChild(para)
     return span
+
   createCanvas: (width, height, others...) =>
     para = document.createElement("p")
     canvas = document.createElement("canvas")
@@ -23,12 +26,14 @@ class DomCreator
     para.appendChild(canvas)
     @parent.appendChild(para)
     return canvas
+
   createButton: (id, others...) =>
     button = document.createElement("button")
     button.id = id
     if others[0]? then button.className = others[0]
     @parent.appendChild(button)
     return button
+
   createRadio: (name, value, labelHTML, id, others...) =>
     radio = document.createElement("input")
     radio.type = "radio"
@@ -43,12 +48,29 @@ class DomCreator
     @parent.appendChild(label)
     return radio
 
+class FakeStorage
+  constructor: () ->
+    data = {}
+
+  setItem: (id, val) =>
+    return @data[id] = String(val)
+
+  getItem: (id) =>
+    return if @data.hasOwnProperty(id) then @data[id] else undefined
+
+  removeItem: (id) =>
+    return delete @data[id]
+
+  clear: () =>
+    @data = {}
+
 class App
   constructor: (DomCreator) ->
     @createDom(DomCreator)
     @unitNum = 30
     @unitSize = Math.floor(@canvas.height / @unitNum)
     @timerId = null
+    @status = "REFRESHED"
     @touchStart = []
     @directions = ["UP", "DOWN", "LEFT", "RIGHT"]
     @opposite = {
@@ -103,7 +125,10 @@ class App
     ]
     @map = @maps[0]
     @refresh()
+    if (snakeStorage = @getStorage())?
+      @loadStorage(snakeStorage)
     addEventListener("keydown", @handleButtonKeyDown, false)
+
   createDom: (DomCreator) =>
     @domCreator = new DomCreator("snakeGame")
     @domCreator.createPara("空格暂停/开始，回车重来")
@@ -136,6 +161,67 @@ class App
       @eventTouchStart = "touchstart"
       @eventTouchMove = "touchmove"
       @eventTouchEnd = "touchend"
+    if not window.fakeStorage?
+      window.fakeStorage = new FakeStorage()
+    @storage = (
+      if @checkLocalStorage() then window.localStorage else window.fakeStorage
+    )
+
+  checkLocalStorage: () ->
+    try
+      window.localStorage.setItem("test", 1)
+      window.localStorage.removeItem("test")
+      return true
+    catch err
+      return false
+
+  setStorage: () =>
+    snakeStorage = {
+      "score": @score,
+      "status": "STOPPED",
+      "food": @food,
+      "snake": @snake
+    }
+    if @mapRadio[1].checked
+      snakeStorage["map"] = 1
+    else if @mapRadio[2].checked
+      snakeStorage["map"] = 2
+    else
+      snakeStorage["map"] = 0
+    if @speedRadio[0].checked
+      snakeStorage["speed"] = 0
+    else if @speedRadio[2].checked
+      snakeStorage["speed"] = 2
+    else
+      snakeStorage["speed"] = 1
+    @storage.setItem("snakeStorage", JSON.stringify(snakeStorage))
+
+  getStorage: () =>
+    if (snakeStorage = @storage.getItem("snakeStorage"))?
+      return JSON.parse(snakeStorage)
+    else
+      return undefined
+
+  loadStorage: (snakeStorage) =>
+    for mapRadio in @mapRadio
+      mapRadio.checked = false
+    @mapRadio[snakeStorage["map"]].checked = true
+    @setMap()
+    for speedRadio in @speedRadio
+      speedRadio.checked = false
+    @speedRadio[snakeStorage["speed"]].checked = true
+    @setSpeed()
+    @score = snakeStorage["score"]
+    @status = snakeStorage["status"]
+    @food = snakeStorage["food"]
+    @snake = snakeStorage["snake"]
+    @setButtonContent()
+    @setScore()
+    @renderPresent()
+
+  removeStorage: () =>
+    @storage.removeItem("snakeStorage")
+
   fixPos: (point) =>
     # Limit point's position in 0 to unit number.
     point[0] %= @unitNum
@@ -143,6 +229,7 @@ class App
     while point[0] < 0 then point[0] += @unitNum
     while point[1] < 0 then point[1] += @unitNum
     return point
+
   createSnake: () =>
     list = []
     if @map.head?
@@ -172,6 +259,7 @@ class App
           list.push(@fixPos([headX - i, headY]))
     @snake.list = list
     @snake.move = move
+
   createFood: () =>
     # Set random food.
     @food = [Math.floor(Math.random() * @unitNum), \
@@ -180,6 +268,7 @@ class App
     while @checkFoodCollision()
       @food = [Math.floor(Math.random() * @unitNum), \
       Math.floor(Math.random() * @unitNum)]
+
   checkFoodCollision: () =>
     # Check whether food in other entities' place.
     for body in @snake.list
@@ -189,6 +278,7 @@ class App
       if @food[0] is brick[0] and @food[1] is brick[1]
         return true
     return false
+
   changeSnakeMove: () =>
     # If moveQueue has repeated directions, or has opposite directions in
     # the head (snake cannot move back), remove all of those directions.
@@ -200,6 +290,7 @@ class App
     # Change direction once.
     if @moveQueue.length
       @snake.move = @moveQueue.shift()
+
   insertSnakeHead: () =>
     # To move a snake, first insert a head.
     # Then you may remove the tail, and it looks like moving.
@@ -214,6 +305,7 @@ class App
         @snake.list.unshift(@fixPos([headX - 1, headY]))
       when "RIGHT"
         @snake.list.unshift(@fixPos([headX + 1, headY]))
+
   checkHeadCollision: () =>
     # Check whether head eat food or knock something.
     for body in @snake.list[1...(@snake.list.length - 1)]
@@ -225,8 +317,10 @@ class App
     if @snake.list[0][0] is @food[0] and @snake.list[0][1] is @food[1]
       return 1
     return 0
+
   deleteSnakeTail: () =>
     @snake.list.pop()
+
   moveSnake: () =>
     @changeSnakeMove()
     @insertSnakeHead()
@@ -241,12 +335,18 @@ class App
       when -1
         @deleteSnakeTail()
         return -1
+
   addScore: () =>
     @score++
+    @setScore()
+
+  setScore: () =>
     @scoreBar.innerHTML = "#{@score} 分"
+
   clearScore: () =>
     @score = 0
-    @scoreBar.innerHTML = "#{@score} 分"
+    @setScore()
+
   drawBackground: () =>
     @ctx.clearRect(0, 0, @canvas.width, @canvas.height)
     for i in [0...@unitNum]
@@ -256,15 +356,18 @@ class App
         else
           @ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
         @ctx.fillRect(i * @unitSize, j * @unitSize, @unitSize, @unitSize)
+
   drawWall: () =>
     for brick in @map.wall
       @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
       @ctx.fillRect(brick[0] * @unitSize, brick[1] * @unitSize, \
       @unitSize, @unitSize)
+
   drawFood: () =>
     @ctx.strokeStyle = "rgba(0, 100, 100, 1)"
     @ctx.strokeRect(@food[0] * @unitSize, @food[1] * @unitSize, \
     @unitSize, @unitSize)
+
   drawSnake: () =>
     for body in @snake.list[1...@snake.list.length]
       @ctx.fillStyle = "rgba(100, 100, 200, 1)"
@@ -273,15 +376,18 @@ class App
     @ctx.fillStyle = "rgba(200, 0, 0, 1)"
     @ctx.fillRect(@snake.list[0][0] * @unitSize, \
     @snake.list[0][1] * @unitSize, @unitSize, @unitSize)
+
   drawBorder: () =>
     @ctx.strokeStyle = "rgba(3, 3, 3, 0.7)"
     @ctx.strokeRect(0, 0, @canvas.width, @canvas.height)
+
   renderPresent: () =>
     @drawBackground()
     @drawWall()
     @drawFood()
     @drawSnake()
     @drawBorder()
+
   handleButtonKeyDown: (event) =>
     switch event.keyCode
       # Space.
@@ -292,6 +398,7 @@ class App
       when 13
         event.preventDefault()
         @refreshButton.onclick()
+
   handleMoveKeyDown: (event) =>
     switch event.keyCode
       # Up arrow.
@@ -313,14 +420,17 @@ class App
     if move?
       event.preventDefault()
       @moveQueue.push(move)
+
   handleTouchStart: (event) =>
     # Only handle one finger touch.
     if event.touches.length > 1 or event.targetTouches.length > 1
       return -1
     @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
     event.preventDefault()
+
   handleTouchMove: (event) ->
     event.preventDefault()
+
   handleTouchEnd: (event) =>
     # Only handle one finger touch.
     if event.touches.length > 0 or event.targetTouches.length > 0
@@ -338,6 +448,7 @@ class App
         (if dy > 0 then "DOWN" else "UP"))
       event.preventDefault()
       @moveQueue.push(move)
+
   setSpeed: () =>
     if @speedRadio[0].checked
       @interval = 200
@@ -348,6 +459,7 @@ class App
     else
       @interval = 150
       @refresh()
+
   setMap: () =>
     if @mapRadio[1].checked
       @map = @maps[1]
@@ -358,18 +470,39 @@ class App
     else
       @map = @maps[0]
       @refresh()
+
+  setButtonContent: () =>
+    switch @status
+      when "STARTED"
+        @switchButton.innerHTML = "暂停"
+        @switchButton.onclick = @stop
+      when "STOPPED"
+        @switchButton.innerHTML = "继续"
+        @switchButton.onclick = @start
+      when "DEAD"
+        @switchButton.innerHTML = "死啦"
+        @switchButton.onclick = @refresh
+      when "REFRESHED"
+        @switchButton.innerHTML = "开始"
+        @switchButton.onclick = @start
+        @refreshButton.innerHTML = "重来"
+        @refreshButton.onclick = @refresh
+
   main: () =>
     result = @moveSnake()
+    @setStorage()
     @renderPresent()
     if result is -1 then @death()
+
   start: () =>
     addEventListener("keydown", @handleMoveKeyDown, false)
     @canvas.addEventListener(@eventTouchStart, @handleTouchStart, false)
     @canvas.addEventListener(@eventTouchMove, @handleTouchMove, false)
     @canvas.addEventListener(@eventTouchEnd, @handleTouchEnd, false)
     @timerId = setInterval(@main, @interval)
-    @switchButton.innerHTML = "暂停"
-    @switchButton.onclick = @stop
+    @status = "STARTED"
+    @setButtonContent()
+
   stop: () =>
     removeEventListener("keydown", @handleMoveKeyDown, false)
     @canvas.removeEventListener(@eventTouchStart, @handleTouchStart, false)
@@ -377,17 +510,19 @@ class App
     @canvas.removeEventListener(@eventTouchEnd, @handleTouchEnd, false)
     clearInterval(@timerId)
     @timerId = null
-    @switchButton.innerHTML = "继续"
-    @switchButton.onclick = @start
+    @status = "STOPPED"
+    @setButtonContent()
+
   death: () =>
     removeEventListener("keydown", @handleMoveKeyDown, false)
     @canvas.removeEventListener("touchstart", @handleTouchStart, false)
     @canvas.removeEventListener("touchmove", @handleTouchMove, false)
     @canvas.removeEventListener("touchend", @handleTouchEnd, false)
     clearInterval(@timerId)
+    @removeStorage()
     @timerId = null
-    @switchButton.innerHTML = "死啦"
-    @switchButton.onclick = @refresh
+    @status = "DEAD"
+    @setButtonContent()
     img = new Image()
     img.onload = () =>
       @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
@@ -419,6 +554,7 @@ class App
       @ctx.drawImage(img, Math.floor((@canvas.width - img.width) / 2), \
       topBase + 30 + 10 + 30 + 10)
     img.src = "images/qrcode_transparent.png"
+
   refresh: () =>
     if @timerId?
       clearInterval(@timerId)
@@ -429,9 +565,7 @@ class App
     @createSnake()
     @createFood()
     @renderPresent()
-    @switchButton.innerHTML = "开始"
-    @switchButton.onclick = @start
-    @refreshButton.innerHTML = "重来"
-    @refreshButton.onclick = @refresh
+    @status = "REFRESHED"
+    @setButtonContent()
 
 app = new App(DomCreator)
