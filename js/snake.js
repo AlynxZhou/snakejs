@@ -192,6 +192,8 @@
       this.refresh();
       if ((snakeStorage = this.getStorage()) != null) {
         this.loadStorage(snakeStorage);
+      } else {
+        this.setStorage();
       }
       addEventListener("keydown", this.handleButtonKeyDown, false);
     }

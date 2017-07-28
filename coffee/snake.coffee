@@ -127,6 +127,8 @@ class App
     @refresh()
     if (snakeStorage = @getStorage())?
       @loadStorage(snakeStorage)
+    else
+      @setStorage()
     addEventListener("keydown", @handleButtonKeyDown, false)
 
   createDom: (DomCreator) =>
