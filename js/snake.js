@@ -635,8 +635,8 @@
           this.switchButton.innerHTML = "死啦";
           return this.switchButton.onclick = (function(_this) {
             return function() {
-              _this.refresh();
-              return _this.removeStorage();
+              _this.removeStorage();
+              return _this.refresh();
             };
           })(this);
         case "REFRESHED":
@@ -645,8 +645,8 @@
           this.refreshButton.innerHTML = "重来";
           return this.refreshButton.onclick = (function(_this) {
             return function() {
-              _this.refresh();
-              return _this.removeStorage();
+              _this.removeStorage();
+              return _this.refresh();
             };
           })(this);
       }

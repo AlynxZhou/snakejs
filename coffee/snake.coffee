@@ -482,15 +482,15 @@ class App
       when "DEAD"
         @switchButton.innerHTML = "死啦"
         @switchButton.onclick = () =>
-          @refresh()
           @removeStorage()
+          @refresh()
       when "REFRESHED"
         @switchButton.innerHTML = "开始"
         @switchButton.onclick = @start
         @refreshButton.innerHTML = "重来"
         @refreshButton.onclick = () =>
-          @refresh()
           @removeStorage()
+          @refresh()
 
   main: () =>
     result = @moveSnake()
