@@ -592,7 +592,7 @@ class App
       # QRCode.
       @ctx.drawImage(img, Math.floor((@canvas.width - img.width) / 2), \
       topBase + 30 + 10 + 30 + 10, 200, 200)
-    img.src = "images/qrcode.png"
+    img.src = "images/snake_qrcode.png"
     @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
     @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
     @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
