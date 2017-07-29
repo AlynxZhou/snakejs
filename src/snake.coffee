@@ -586,33 +586,33 @@ class App
     @timerId = null
     @status = "DEAD"
     @setButtonContent()
+    @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
+    @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
+    @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
+    @ctx.font = "30px sans"
+    @ctx.textAlign = "start"
+    @ctx.textBaseline = "top"
+    topBase = Math.floor((@canvas.height - img.height - \
+    10 - 30 - 10 - 30) / 2)
+    str = "你获得了 #{@score} 分"
+    text = @ctx.measureText(str)
+    @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), topBase)
+    str = "截图分享给朋友吧"
+    text = @ctx.measureText(str)
+    @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), \
+    topBase + 30 + 10)
+    # Text shadow.
+    @ctx.fillStyle = "rgba(10, 10, 10, 0.5)"
+    str = "你获得了 #{@score} 分"
+    text = @ctx.measureText(str)
+    @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2) + 2, \
+    topBase + 2)
+    str = "截图分享给朋友吧"
+    text = @ctx.measureText(str)
+    @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2) + 2, \
+    topBase + 30 + 10 + 2)
     img = new Image()
     img.onload = () =>
-      @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
-      @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
-      @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
-      @ctx.font = "30px sans"
-      @ctx.textAlign = "start"
-      @ctx.textBaseline = "top"
-      topBase = Math.floor((@canvas.height - img.height - \
-      10 - 30 - 10 - 30) / 2)
-      str = "你获得了 #{@score} 分"
-      text = @ctx.measureText(str)
-      @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), topBase)
-      str = "截图分享给朋友吧"
-      text = @ctx.measureText(str)
-      @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), \
-      topBase + 30 + 10)
-      # Text shadow.
-      @ctx.fillStyle = "rgba(10, 10, 10, 0.5)"
-      str = "你获得了 #{@score} 分"
-      text = @ctx.measureText(str)
-      @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2) + 2, \
-      topBase + 2)
-      str = "截图分享给朋友吧"
-      text = @ctx.measureText(str)
-      @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2) + 2, \
-      topBase + 30 + 10 + 2)
       # QRCode.
       @ctx.drawImage(img, Math.floor((@canvas.width - img.width) / 2), \
       topBase + 30 + 10 + 30 + 10)
