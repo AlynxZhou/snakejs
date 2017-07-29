@@ -7,6 +7,7 @@
   DomCreator = (function() {
     function DomCreator(parentId) {
       this.parentId = parentId;
+      this.createStyle = bind(this.createStyle, this);
       this.createRadio = bind(this.createRadio, this);
       this.createButton = bind(this.createButton, this);
       this.createCanvas = bind(this.createCanvas, this);
@@ -23,15 +24,22 @@
       if (others[0] != null) {
         para.id = others[0];
       }
+      if (others[1] != null) {
+        para.className = others[1];
+      }
       this.parent.appendChild(para);
       return para;
     };
 
-    DomCreator.prototype.createSpan = function(id) {
-      var para, span;
+    DomCreator.prototype.createSpan = function() {
+      var id, others, para, span;
+      id = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       para = document.createElement("p");
       span = document.createElement("span");
       span.id = id;
+      if (others[0] != null) {
+        para.className = others[0];
+      }
       para.appendChild(span);
       this.parent.appendChild(para);
       return span;
@@ -46,6 +54,9 @@
       canvas.height = height;
       if (others[0] != null) {
         canvas.id = others[0];
+      }
+      if (others[1] != null) {
+        canvas.className = others[1];
       }
       para.appendChild(canvas);
       this.parent.appendChild(para);
@@ -78,9 +89,20 @@
       if ((others[0] != null) && others[0]) {
         radio.checked = true;
       }
+      if (others[1] != null) {
+        radio.className = others[1];
+      }
       this.parent.appendChild(radio);
       this.parent.appendChild(label);
       return radio;
+    };
+
+    DomCreator.prototype.createStyle = function(innerHTML) {
+      var style;
+      style = document.createElement("style");
+      style.innerHTML = innerHTML;
+      this.parent.appendChild(style);
+      return style;
     };
 
     return DomCreator;
@@ -200,8 +222,8 @@
       this.scoreBar = this.domCreator.createSpan("score");
       this.canvas = this.domCreator.createCanvas(300, 300, "snakeCanvas");
       this.ctx = this.canvas.getContext("2d");
-      this.switchButton = this.domCreator.createButton("switch", "btn btn-danger");
-      this.refreshButton = this.domCreator.createButton("refresh", "btn btn-danger");
+      this.switchButton = this.domCreator.createButton("switch");
+      this.refreshButton = this.domCreator.createButton("refresh");
       this.domCreator.createPara("选择速度");
       this.speedRadio = [this.domCreator.createRadio("speed", "low", "低", "speed0"), this.domCreator.createRadio("speed", "mid", "中", "speed1", true), this.domCreator.createRadio("speed", "high", "高", "speed2")];
       this.domCreator.createPara("选择地图");
@@ -212,6 +234,7 @@
       this.mapRadio[0].onclick = this.setMap;
       this.mapRadio[1].onclick = this.setMap;
       this.mapRadio[2].onclick = this.setMap;
+      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 4px 4px 4px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n	font-size: 30px;\n	margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 6px 12px 6px 12px;\n  font-size: 14px;\n  font-weight: 400;\n  line-height: 1.42857143;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 4px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
       if (window.navigator.msPointerEnabled) {
         this.eventTouchStart = "MSPointerDown";
         this.eventTouchMove = "MSPointerMove";

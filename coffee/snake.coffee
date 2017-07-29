@@ -6,13 +6,15 @@ class DomCreator
     para = document.createElement("p")
     para.innerHTML = innerHTML
     if others[0]? then para.id = others[0]
+    if others[1]? then para.className = others[1]
     @parent.appendChild(para)
     return para
 
-  createSpan: (id) =>
+  createSpan: (id, others...) =>
     para = document.createElement("p")
     span = document.createElement("span")
     span.id = id
+    if others[0]? then para.className = others[0]
     para.appendChild(span)
     @parent.appendChild(para)
     return span
@@ -23,6 +25,7 @@ class DomCreator
     canvas.width = width
     canvas.height = height
     if others[0]? then canvas.id = others[0]
+    if others[1]? then canvas.className = others[1]
     para.appendChild(canvas)
     @parent.appendChild(para)
     return canvas
@@ -44,9 +47,15 @@ class DomCreator
     label.htmlFor = id
     radio.id = id
     if others[0]? and others[0] then radio.checked = true
+    if others[1]? then radio.className = others[1]
     @parent.appendChild(radio)
     @parent.appendChild(label)
     return radio
+  createStyle: (innerHTML) =>
+    style = document.createElement("style")
+    style.innerHTML = innerHTML
+    @parent.appendChild(style)
+    return style
 
 class FakeStorage
   constructor: () ->
@@ -135,8 +144,8 @@ class App
     @scoreBar = @domCreator.createSpan("score")
     @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
-    @switchButton = @domCreator.createButton("switch", "btn btn-danger")
-    @refreshButton = @domCreator.createButton("refresh", "btn btn-danger")
+    @switchButton = @domCreator.createButton("switch")
+    @refreshButton = @domCreator.createButton("refresh")
     @domCreator.createPara("选择速度")
     @speedRadio = [@domCreator.createRadio("speed", "low", "低", "speed0"),
     @domCreator.createRadio("speed", "mid", "中", "speed1", true),
@@ -151,6 +160,51 @@ class App
     @mapRadio[0].onclick = @setMap
     @mapRadio[1].onclick = @setMap
     @mapRadio[2].onclick = @setMap
+    @domCreator.createStyle("""
+    .snakeGame {
+      font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", \
+      "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", \
+      arial, sans-serif;
+      color: #333;
+      text-shadow: 4px 4px 4px #aaa;
+      text-align: center;
+    }
+
+    .snakeGame p {
+      margin: 5px auto 5px auto;
+    }
+
+    .snakeGame button {
+    	font-size: 30px;
+    	margin: 5px 30px 5px 30px;
+      color: #fff;
+      background-color: #d9534f;
+      border-color: #d43f3a;
+      display: inline-block;
+      padding: 6px 12px 6px 12px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.42857143;
+      white-space: nowrap;
+      vertical-align: middle;
+      touch-action: manipulation;
+      cursor: pointer;
+      user-select: none;
+      background-image: none;
+      border: 1px solid transparent;
+      border-radius: 4px;
+    }
+
+    .snakeGame button:hover {
+      color: #fff;
+      background-color: #c9302c;
+      border-color: #ac2925;
+    }
+
+    .snakeGame label {
+      margin: auto 5px auto 5px;
+    }
+    """)
     if window.navigator.msPointerEnabled
       # Internet Explorer 10 style
       @eventTouchStart = "MSPointerDown"
