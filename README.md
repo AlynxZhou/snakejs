@@ -8,7 +8,7 @@ A snake game written in CoffeeScript.
 
 1. Clone this repo or download `lib/snake.js`.
 
-2. Added `images/qrcode.png` under your website's root, this will be shown after playing (better way needed).
+2. Added `images/qrcode.png` the same directory as the page you will load the game, this will be shown after playing (better way needed).
 
 3. Simply added following lines to where you want to place the game, change `src` to where you place snake.js.
 
