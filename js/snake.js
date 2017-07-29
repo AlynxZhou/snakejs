@@ -720,13 +720,20 @@
       this.timerId = null;
       this.status = "DEAD";
       this.setButtonContent();
+      img = new Image();
+      img.onload = (function(_this) {
+        return function() {
+          return _this.ctx.drawImage(img, Math.floor((_this.canvas.width - img.width) / 2), 10 + 30 + 10 + 30 + 10, 200, 200);
+        };
+      })(this);
+      img.src = "images/qrcode_transparent.png";
       this.ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.fillStyle = "rgba(3, 3, 3, 0.7)";
       this.ctx.font = "30px sans";
       this.ctx.textAlign = "start";
       this.ctx.textBaseline = "top";
-      topBase = Math.floor((this.canvas.height - img.height - 10 - 30 - 10 - 30) / 2);
+      topBase = 10;
       str = "你获得了 " + this.score + " 分";
       text = this.ctx.measureText(str);
       this.ctx.fillText(str, Math.floor((this.canvas.width - text.width) / 2), topBase);
@@ -739,14 +746,7 @@
       this.ctx.fillText(str, Math.floor((this.canvas.width - text.width) / 2) + 2, topBase + 2);
       str = "截图分享给朋友吧";
       text = this.ctx.measureText(str);
-      this.ctx.fillText(str, Math.floor((this.canvas.width - text.width) / 2) + 2, topBase + 30 + 10 + 2);
-      img = new Image();
-      img.onload = (function(_this) {
-        return function() {
-          return _this.ctx.drawImage(img, Math.floor((_this.canvas.width - img.width) / 2), topBase + 30 + 10 + 30 + 10);
-        };
-      })(this);
-      return img.src = "images/qrcode_transparent.png";
+      return this.ctx.fillText(str, Math.floor((this.canvas.width - text.width) / 2) + 2, topBase + 30 + 10 + 2);
     };
 
     App.prototype.refresh = function() {
