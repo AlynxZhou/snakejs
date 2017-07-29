@@ -587,18 +587,18 @@ class App
     @status = "DEAD"
     @setButtonContent()
     img = new Image()
+    topBase = 10
     img.onload = () =>
       # QRCode.
       @ctx.drawImage(img, Math.floor((@canvas.width - img.width) / 2), \
-      10 + 30 + 10 + 30 + 10, 200, 200)
-    img.src = "images/qrcode_transparent.png"
+      topBase + 30 + 10 + 30 + 10, 200, 200)
+    img.src = "images/qrcode.png"
     @ctx.fillStyle = "rgba(255, 255, 255, 0.3)"
     @ctx.fillRect(0, 0, @canvas.width, @canvas.height)
     @ctx.fillStyle = "rgba(3, 3, 3, 0.7)"
     @ctx.font = "30px sans"
     @ctx.textAlign = "start"
     @ctx.textBaseline = "top"
-    topBase = 10 # Math.floor((@canvas.height - 200 - 10 - 30 - 10 - 30) / 2)
     str = "你获得了 #{@score} 分"
     text = @ctx.measureText(str)
     @ctx.fillText(str, Math.floor((@canvas.width - text.width) / 2), topBase)

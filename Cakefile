@@ -24,7 +24,7 @@ task("deploy", "Deploy pages branch and push master and pages branches.", () ->
   git push coding master; \
   git checkout pages; \
   git checkout master lib/snake.js; \
-  echo 'git checkout master lib/snake.js'; \
+  git checkout master images/qrcode.png; \
   mv lib/snake.js js/snake.js; \
   rmdir lib; \
   git add .; \
