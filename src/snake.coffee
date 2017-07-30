@@ -478,7 +478,10 @@ class App
     # Only handle one finger touch.
     if event.touches.length > 1 or event.targetTouches.length > 1
       return -1
-    @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
+    if window.navigator.msPointerEnabled
+      @touchStart = [event.pageX, event.pageY]
+    else
+      @touchStart = [event.touches[0].clientX, event.touches[0].clientY]
     event.preventDefault()
 
   handleTouchMove: (event) ->
@@ -488,8 +491,12 @@ class App
     # Only handle one finger touch.
     if event.touches.length > 0 or event.targetTouches.length > 0
       return -1
-    dx = event.changedTouches[0].clientX - @touchStart[0]
-    dy = event.changedTouches[0].clientY - @touchStart[1]
+    if window.navigator.msPointerEnabled
+      dx = event.pageX - @touchStart[0]
+      dy = event.pageY - @touchStart[1]
+    else
+      dx = event.changedTouches[0].clientX - @touchStart[0]
+      dy = event.changedTouches[0].clientY - @touchStart[1]
     absDx = Math.abs(dx)
     absDy = Math.abs(dy)
     @touchStart = []
