@@ -51,6 +51,12 @@ class DomCreator
     @parent.appendChild(radio)
     @parent.appendChild(label)
     return radio
+
+  createBreak: () =>
+    br = document.createElement("br")
+    @parent.appendChild(br)
+    return br
+
   createStyle: (innerHTML) =>
     style = document.createElement("style")
     style.innerHTML = innerHTML
@@ -144,6 +150,16 @@ class App
     @scoreBar = @domCreator.createSpan("score")
     @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
+    @upButton = @domCreator.createButton("up")
+    @upButton.onclick = () => @handleMoveButton("UP")
+    @domCreator.createBreak()
+    @leftButton = @domCreator.createButton("left")
+    @leftButton.onclick = () => @handleMoveButton("LEFT")
+    @rightButton = @domCreator.createButton("right")
+    @rightButton.onclick = () => @handleMoveButton("RIGHT")
+    @domCreator.createBreak()
+    @downButton = @domCreator.createButton("down")
+    @downButton.onclick = () => @handleMoveButton("DOWN")
     @switchButton = @domCreator.createButton("switch")
     @refreshButton = @domCreator.createButton("refresh")
     @domCreator.createPara("选择速度")
@@ -440,6 +456,9 @@ class App
     @drawFood()
     @drawSnake()
     @drawBorder()
+
+  handleMoveButton: (move) =>
+    @moveQueue.push(move)
 
   handleButtonKeyDown: (event) =>
     switch event.keyCode
