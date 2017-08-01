@@ -33,8 +33,9 @@ class DomCreator
   createButton: (id, others...) =>
     button = document.createElement("button")
     button.id = id
-    if others[0]? then button.className = others[0]
+    if others[0]? then buttin.innerHTML = others[0]
     @parent.appendChild(button)
+    if others[1]? then button.className = others[1]
     return button
 
   createRadio: (name, value, labelHTML, id, others...) =>
@@ -151,15 +152,16 @@ class App
     @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
     @upButton = @domCreator.createButton("up")
-    @upButton.onclick = () => @handleMoveButton("UP")
+    @upButton.onclick = () => @handleMoveButton("UP", "上")
     @domCreator.createBreak()
-    @leftButton = @domCreator.createButton("left")
+    @leftButton = @domCreator.createButton("left", "左")
     @leftButton.onclick = () => @handleMoveButton("LEFT")
-    @rightButton = @domCreator.createButton("right")
+    @rightButton = @domCreator.createButton("right", "右")
     @rightButton.onclick = () => @handleMoveButton("RIGHT")
     @domCreator.createBreak()
-    @downButton = @domCreator.createButton("down")
+    @downButton = @domCreator.createButton("down", "下")
     @downButton.onclick = () => @handleMoveButton("DOWN")
+    @domCreator.createBreak()
     @switchButton = @domCreator.createButton("switch")
     @refreshButton = @domCreator.createButton("refresh")
     @domCreator.createPara("选择速度")
