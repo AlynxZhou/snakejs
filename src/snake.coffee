@@ -33,7 +33,7 @@ class DomCreator
   createButton: (id, others...) =>
     button = document.createElement("button")
     button.id = id
-    if others[0]? then buttin.innerHTML = others[0]
+    if others[0]? then button.innerHTML = others[0]
     @parent.appendChild(button)
     if others[1]? then button.className = others[1]
     return button
