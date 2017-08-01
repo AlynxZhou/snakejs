@@ -70,7 +70,7 @@
       button = document.createElement("button");
       button.id = id;
       if (others[0] != null) {
-        buttin.innerHTML = others[0];
+        button.innerHTML = others[0];
       }
       this.parent.appendChild(button);
       if (others[1] != null) {
