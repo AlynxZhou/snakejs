@@ -207,27 +207,27 @@ class App
     @domCreator.createPara(descriptionDiv, "WASD、方向键或划屏操纵")
     @domCreator.createStyle("""
     .snakeGame {
-      font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", \
+      font: 20px/1.5 "Noto Sans", "Noto Sans CJK", "Lato", \
       "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", \
       arial, sans-serif;
       color: #333;
-      text-shadow: 5px 5px 5px #aaa;
+      text-shadow: 3px 3px 3px #aaa;
       text-align: center;
     }
 
     .snakeGame p {
-      margin: 5px auto 5px auto;
+      margin: 3px auto 3px auto;
     }
 
     .snakeGame button {
-      margin: 5px 30px 5px 30px;
+      margin: 3px 30px 3px 30px;
       color: #fff;
       background-color: #d9534f;
       border-color: #d43f3a;
       display: inline-block;
-      padding: 5px 20px 5px 20px;
+      padding: 7px 20px 7px 20px;
       font-size: 15px;
-      font-weight: 400;
+      font-weight: 300;
       line-height: 1.5;
       white-space: nowrap;
       vertical-align: middle;
@@ -246,7 +246,7 @@ class App
     }
 
     .snakeGame label {
-      margin: auto 5px auto 5px;
+      margin: auto 3px auto 3px;
     }
     """)
     if not window.fakeStorage?
@@ -543,12 +543,12 @@ class App
 
   setSpeed: (level) =>
     if level in [0...@intervals.length]
-      @interal = @intervals[level]
+      @interval = @intervals[level]
       @removeStorage()
       @refresh()
     else
       # Default speed.
-      @interal = @intervals[1]
+      @interval = @intervals[1]
       @removeStorage()
       @refresh()
 
