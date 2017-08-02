@@ -2,43 +2,47 @@ class DomCreator
   constructor: (@parentId) ->
     @parent = document.getElementById(@parentId)
 
-  createPara: (innerHTML, others...) =>
+  createStyle: (innerHTML) =>
+    style = document.createElement("style")
+    style.innerHTML = innerHTML
+    @parent.appendChild(style)
+    return style
+
+  createDiv: (className) =>
+    div = document.createElement("div")
+    div.className = className
+    @parent.appendChild(div)
+    return div
+
+  createPara: (parent, others...) ->
     para = document.createElement("p")
     para.innerHTML = innerHTML
-    if others[0]? then para.id = others[0]
-    if others[1]? then para.className = others[1]
-    @parent.appendChild(para)
+    if others[0]? then para.innerHTML = others[0]
+    parent.appendChild(para)
     return para
 
-  createSpan: (id, others...) =>
-    para = document.createElement("p")
+  createSpan: (parent, id) ->
     span = document.createElement("span")
     span.id = id
-    if others[0]? then para.className = others[0]
-    para.appendChild(span)
-    @parent.appendChild(para)
+    parent.appendChild(span)
     return span
 
-  createCanvas: (width, height, others...) =>
-    para = document.createElement("p")
+  createCanvas: (parent, width, height, others...) ->
     canvas = document.createElement("canvas")
     canvas.width = width
     canvas.height = height
     if others[0]? then canvas.id = others[0]
-    if others[1]? then canvas.className = others[1]
-    para.appendChild(canvas)
-    @parent.appendChild(para)
+    parent.appendChild(canvas)
     return canvas
 
-  createButton: (id, others...) =>
+  createButton: (parent, id, others...) ->
     button = document.createElement("button")
     button.id = id
     if others[0]? then button.innerHTML = others[0]
-    @parent.appendChild(button)
-    if others[1]? then button.className = others[1]
+    parent.appendChild(button)
     return button
 
-  createRadio: (name, value, labelHTML, id, others...) =>
+  createRadio: (parent, name, value, labelHTML, id, others...) ->
     radio = document.createElement("input")
     radio.type = "radio"
     radio.name = name
@@ -48,21 +52,14 @@ class DomCreator
     label.htmlFor = id
     radio.id = id
     if others[0]? and others[0] then radio.checked = true
-    if others[1]? then radio.className = others[1]
-    @parent.appendChild(radio)
-    @parent.appendChild(label)
+    parent.appendChild(radio)
+    parent.appendChild(label)
     return radio
 
-  createBreak: () =>
+  createBreak: (parent) ->
     br = document.createElement("br")
-    @parent.appendChild(br)
+    parent.appendChild(br)
     return br
-
-  createStyle: (innerHTML) =>
-    style = document.createElement("style")
-    style.innerHTML = innerHTML
-    @parent.appendChild(style)
-    return style
 
 class FakeStorage
   constructor: () ->
@@ -155,45 +152,61 @@ class App
 
   createDom: (DomCreator) =>
     @domCreator = new DomCreator("snakeGame")
-    @scoreBar = @domCreator.createSpan("score")
-    @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
+    @scoreBar = @domCreator.createSpan(@domCreator.createPara(
+      @domCreator.createDiv("snakeScore")
+    ), "snakeScore")
+    @canvas = @domCreator.createCanvas(@domCreator.createDiv("snakeCanvas"),
+    300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
-    @upButton = @domCreator.createButton("up", "上")
+    buttonDiv = @domCreator.createDiv("snakeButton")
+    @upButton = @domCreator.createButton(buttonDiv, "snakeUp", "上")
     @upButton.onclick = () => @handleMoveButton("UP")
-    @domCreator.createBreak()
-    @leftButton = @domCreator.createButton("left", "左")
+    @domCreator.createBreak(buttonDiv)
+    @leftButton = @domCreator.createButton(buttonDiv, "snakeLeft", "左")
     @leftButton.onclick = () => @handleMoveButton("LEFT")
-    @rightButton = @domCreator.createButton("right", "右")
+    @rightButton = @domCreator.createButton(buttonDiv, "snakeRight", "右")
     @rightButton.onclick = () => @handleMoveButton("RIGHT")
-    @domCreator.createBreak()
-    @downButton = @domCreator.createButton("down", "下")
+    @domCreator.createBreak(buttonDiv)
+    @downButton = @domCreator.createButton(buttonDiv, "snakeDown", "下")
     @downButton.onclick = () => @handleMoveButton("DOWN")
-    @domCreator.createBreak()
-    @switchButton = @domCreator.createButton("switch")
-    @refreshButton = @domCreator.createButton("refresh")
-    @domCreator.createPara("选择速度")
-    @speedRadio = [@domCreator.createRadio("speed", "low", "低", "speed0"),
-    @domCreator.createRadio("speed", "mid", "中", "speed1", true),
-    @domCreator.createRadio("speed", "high", "高", "speed2")]
+    @domCreator.createBreak(buttonDiv)
+    @switchButton = @domCreator.createButton(buttonDiv, "snakeSwitch")
+    @refreshButton = @domCreator.createButton(buttonDiv, "snakeRefresh")
+    settingDiv = @domCreator.createDiv("snakeSetting")
+    @domCreator.createPara(settingDiv, "选择速度")
+    @speedRadio = [
+      @domCreator.createRadio(
+        settingDiv, "snakeSpeed", "low", "低", "snakeSpeed0"
+      ),
+      @domCreator.createRadio(
+        settingDiv, "snakeSpeed", "mid", "中", "snakeSpeed1", true
+      ),
+      @domCreator.createRadio(
+        settingDiv, "snakeSpeed", "high", "高", "snakeSpeed2"
+      )
+    ]
     @speedRadio[0].onclick = () => @setSpeed(0)
     @speedRadio[1].onclick = () => @setSpeed(1)
     @speedRadio[2].onclick = () => @setSpeed(2)
     @domCreator.createPara("选择地图")
-    @mapRadio = [@domCreator.createRadio("map", "map0", "无地图", "map0", true),
-    @domCreator.createRadio("map", "map1", "地图一", "map1"),
-    @domCreator.createRadio("map", "map2", "地图二", "map2")]
+    @mapRadio = [
+      @domCreator.createRadio("snakeMap", "map0", "无地图", "snakeMap0", true),
+      @domCreator.createRadio("snakeMap", "map1", "地图一", "snakeMap1"),
+      @domCreator.createRadio("snakeMap", "map2", "地图二", "snakeMap2")
+    ]
     @mapRadio[0].onclick = () => @setMap(0)
     @mapRadio[1].onclick = () => @setMap(1)
     @mapRadio[2].onclick = () => @setMap(2)
-    @domCreator.createPara("空格暂停/开始，回车重来")
-    @domCreator.createPara("WASD、方向键或划屏操纵")
+    descriptionDiv = @domCreator.createDiv("snakeDescription")
+    @domCreator.createPara(descriptionDiv, "空格暂停/开始，回车重来")
+    @domCreator.createPara(descriptionDiv, "WASD、方向键或划屏操纵")
     @domCreator.createStyle("""
     .snakeGame {
       font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", \
       "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", \
       arial, sans-serif;
       color: #333;
-      text-shadow: 4px 4px 4px #aaa;
+      text-shadow: 5px 5px 5px #aaa;
       text-align: center;
     }
 
@@ -202,16 +215,15 @@ class App
     }
 
     .snakeGame button {
-    	font-size: 30px;
-    	margin: 5px 30px 5px 30px;
+      margin: 5px 30px 5px 30px;
       color: #fff;
       background-color: #d9534f;
       border-color: #d43f3a;
       display: inline-block;
-      padding: 10px 15px 10px 15px;
-      font-size: 14px;
+      padding: 5px 20px 5px 20px;
+      font-size: 15px;
       font-weight: 400;
-      line-height: 1.42857143;
+      line-height: 1.5;
       white-space: nowrap;
       vertical-align: middle;
       touch-action: manipulation;
@@ -219,7 +231,7 @@ class App
       user-select: none;
       background-image: none;
       border: 1px solid transparent;
-      border-radius: 4px;
+      border-radius: 5px;
     }
 
     .snakeGame button:hover {
