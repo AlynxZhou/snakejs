@@ -16,7 +16,6 @@ class DomCreator
 
   createPara: (parent, others...) ->
     para = document.createElement("p")
-    para.innerHTML = innerHTML
     if others[0]? then para.innerHTML = others[0]
     parent.appendChild(para)
     return para
