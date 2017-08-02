@@ -295,7 +295,7 @@
       descriptionDiv = this.domCreator.createDiv("snakeDescription");
       this.domCreator.createPara(descriptionDiv, "空格暂停/开始，回车重来");
       this.domCreator.createPara(descriptionDiv, "WASD、方向键或划屏操纵");
-      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 5px 5px 5px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n  margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 5px 20px 5px 20px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 1.5;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 5px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
+      this.domCreator.createStyle(".snakeGame {\n  font: 20px/1.5 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 3px 3px 3px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 3px auto 3px auto;\n}\n\n.snakeGame button {\n  margin: 3px 30px 3px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 7px 20px 7px 20px;\n  font-size: 15px;\n  font-weight: 300;\n  line-height: 1.5;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 5px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 3px auto 3px;\n}");
       if (window.fakeStorage == null) {
         window.fakeStorage = new FakeStorage();
       }
@@ -682,11 +682,11 @@
         for (var k = 0, ref = this.intervals.length; 0 <= ref ? k < ref : k > ref; 0 <= ref ? k++ : k--){ results.push(k); }
         return results;
       }).apply(this), level) >= 0) {
-        this.interal = this.intervals[level];
+        this.interval = this.intervals[level];
         this.removeStorage();
         return this.refresh();
       } else {
-        this.interal = this.intervals[1];
+        this.interval = this.intervals[1];
         this.removeStorage();
         return this.refresh();
       }
