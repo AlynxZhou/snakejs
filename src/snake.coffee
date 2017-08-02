@@ -141,13 +141,20 @@ class App
       }
     ]
     @map = @maps[0]
+    if window.navigator.msPointerEnabled
+      # Internet Explorer 10 style
+      @eventTouchStart = "MSPointerDown"
+      @eventTouchMove = "MSPointerMove"
+      @eventTouchEnd = "MSPointerUp"
+    else
+      @eventTouchStart = "touchstart"
+      @eventTouchMove = "touchmove"
+      @eventTouchEnd = "touchend"
     @refresh()
     addEventListener("keydown", @handleButtonKeyDown, false)
 
   createDom: (DomCreator) =>
     @domCreator = new DomCreator("snakeGame")
-    @domCreator.createPara("空格暂停/开始，回车重来")
-    @domCreator.createPara("WASD、方向键或划屏操纵")
     @scoreBar = @domCreator.createSpan("score")
     @canvas = @domCreator.createCanvas(300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
@@ -168,16 +175,18 @@ class App
     @speedRadio = [@domCreator.createRadio("speed", "low", "低", "speed0"),
     @domCreator.createRadio("speed", "mid", "中", "speed1", true),
     @domCreator.createRadio("speed", "high", "高", "speed2")]
+    @speedRadio[0].onclick = () => @setSpeed(0)
+    @speedRadio[1].onclick = () => @setSpeed(1)
+    @speedRadio[2].onclick = () => @setSpeed(2)
     @domCreator.createPara("选择地图")
     @mapRadio = [@domCreator.createRadio("map", "map0", "无地图", "map0", true),
     @domCreator.createRadio("map", "map1", "地图一", "map1"),
     @domCreator.createRadio("map", "map2", "地图二", "map2")]
-    @speedRadio[0].onclick = @setSpeed
-    @speedRadio[1].onclick = @setSpeed
-    @speedRadio[2].onclick = @setSpeed
-    @mapRadio[0].onclick = @setMap
-    @mapRadio[1].onclick = @setMap
-    @mapRadio[2].onclick = @setMap
+    @mapRadio[0].onclick = () => @setMap(0)
+    @mapRadio[1].onclick = () => @setMap(1)
+    @mapRadio[2].onclick = () => @setMap(2)
+    @domCreator.createPara("空格暂停/开始，回车重来")
+    @domCreator.createPara("WASD、方向键或划屏操纵")
     @domCreator.createStyle("""
     .snakeGame {
       font: 16px/1.8 "Noto Sans", "Noto Sans CJK", "Lato", \
@@ -199,7 +208,7 @@ class App
       background-color: #d9534f;
       border-color: #d43f3a;
       display: inline-block;
-      padding: 6px 12px 6px 12px;
+      padding: 10px 15px 10px 15px;
       font-size: 14px;
       font-weight: 400;
       line-height: 1.42857143;
@@ -223,15 +232,6 @@ class App
       margin: auto 5px auto 5px;
     }
     """)
-    if window.navigator.msPointerEnabled
-      # Internet Explorer 10 style
-      @eventTouchStart = "MSPointerDown"
-      @eventTouchMove = "MSPointerMove"
-      @eventTouchEnd = "MSPointerUp"
-    else
-      @eventTouchStart = "touchstart"
-      @eventTouchMove = "touchmove"
-      @eventTouchEnd = "touchend"
     if not window.fakeStorage?
       window.fakeStorage = new FakeStorage()
     @storage = (
@@ -251,20 +251,10 @@ class App
       "score": @score,
       "status": "STOPPED",
       "food": @food,
-      "snake": @snake
+      "snake": @snake,
+      "map": @getMap(),
+      "speed": @getSpeed()
     }
-    if @mapRadio[1].checked
-      snakeStorage["map"] = 1
-    else if @mapRadio[2].checked
-      snakeStorage["map"] = 2
-    else
-      snakeStorage["map"] = 0
-    if @speedRadio[0].checked
-      snakeStorage["speed"] = 0
-    else if @speedRadio[2].checked
-      snakeStorage["speed"] = 2
-    else
-      snakeStorage["speed"] = 1
     @storage.setItem("snakeStorage", JSON.stringify(snakeStorage))
 
   getStorage: () =>
@@ -277,11 +267,11 @@ class App
     for mapRadio in @mapRadio
       mapRadio.checked = false
     @mapRadio[snakeStorage["map"]].checked = true
-    @map = @maps[snakeStorage["map"]]
+    @mapRadio[snakeStorage["map"]].onclick()
     for speedRadio in @speedRadio
       speedRadio.checked = false
     @speedRadio[snakeStorage["speed"]].checked = true
-    @interval = @intervals[snakeStorage["speed"]]
+    @speedRadio[snakeStorage["speed"]].onclick()
     @score = snakeStorage["score"]
     @status = snakeStorage["status"]
     @food = snakeStorage["food"]
@@ -398,17 +388,20 @@ class App
     switch @checkHeadCollision()
       # Food ate, create new food.
       when 1
-        @addScore()
+        @addScore(1)
         @createFood()
+        return 1
       # Nothing, just move forward by removing a tail.
-      when 0 then @deleteSnakeTail()
+      when 0
+        @deleteSnakeTail()
+        return 0
       # Death.
       when -1
         @deleteSnakeTail()
         return -1
 
-  addScore: () =>
-    @score++
+  addScore: (num) =>
+    @score += num
     @setScore()
 
   setScore: () =>
@@ -460,7 +453,8 @@ class App
     @drawBorder()
 
   handleMoveButton: (move) =>
-    @moveQueue.push(move)
+    if move.toUpperCase() in @directions
+      @moveQueue.push(move.toUpperCase())
 
   handleButtonKeyDown: (event) =>
     switch event.keyCode
@@ -530,33 +524,43 @@ class App
       event.preventDefault()
       @moveQueue.push(move)
 
-  setSpeed: () =>
-    if @speedRadio[0].checked
-      @interval = @intervals[0]
-      @removeStorage()
-      @refresh()
-    else if @speedRadio[2].checked
-      @interval = @intervals[2]
+  setSpeed: (level) =>
+    if level in [0...@intervals.length]
+      @interal = @intervals[level]
       @removeStorage()
       @refresh()
     else
-      @interval = @intervals[1]
+      # Default speed.
+      @interal = @intervals[1]
       @removeStorage()
       @refresh()
 
-  setMap: () =>
-    if @mapRadio[1].checked
-      @map = @maps[1]
-      @removeStorage()
-      @refresh()
-    else if @mapRadio[2].checked
-      @map = @maps[2]
+  getSpeed: () =>
+    if @speedRadio[0].checked
+      return 0
+    else if @speedRadio[2].checked
+      return 2
+    else
+      return 1
+
+  setMap: (level) =>
+    if level in [0...@maps.length]
+      @map = @maps[level]
       @removeStorage()
       @refresh()
     else
+      # Default map.
       @map = @maps[0]
       @removeStorage()
       @refresh()
+
+  getMap: () =>
+    if @mapRadio[1].checked
+      return 1
+    else if @mapRadio[2].checked
+      return 2
+    else
+      return 0
 
   setButtonContent: () =>
     switch @status
