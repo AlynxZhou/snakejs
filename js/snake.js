@@ -8,81 +8,75 @@
   DomCreator = (function() {
     function DomCreator(parentId) {
       this.parentId = parentId;
+      this.createDiv = bind(this.createDiv, this);
       this.createStyle = bind(this.createStyle, this);
-      this.createBreak = bind(this.createBreak, this);
-      this.createRadio = bind(this.createRadio, this);
-      this.createButton = bind(this.createButton, this);
-      this.createCanvas = bind(this.createCanvas, this);
-      this.createSpan = bind(this.createSpan, this);
-      this.createPara = bind(this.createPara, this);
       this.parent = document.getElementById(this.parentId);
     }
 
+    DomCreator.prototype.createStyle = function(innerHTML) {
+      var style;
+      style = document.createElement("style");
+      style.innerHTML = innerHTML;
+      this.parent.appendChild(style);
+      return style;
+    };
+
+    DomCreator.prototype.createDiv = function(className) {
+      var div;
+      div = document.createElement("div");
+      div.className = className;
+      this.parent.appendChild(div);
+      return div;
+    };
+
     DomCreator.prototype.createPara = function() {
-      var innerHTML, others, para;
-      innerHTML = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+      var others, para, parent;
+      parent = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       para = document.createElement("p");
       para.innerHTML = innerHTML;
       if (others[0] != null) {
-        para.id = others[0];
+        para.innerHTML = others[0];
       }
-      if (others[1] != null) {
-        para.className = others[1];
-      }
-      this.parent.appendChild(para);
+      parent.appendChild(para);
       return para;
     };
 
-    DomCreator.prototype.createSpan = function() {
-      var id, others, para, span;
-      id = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-      para = document.createElement("p");
+    DomCreator.prototype.createSpan = function(parent, id) {
+      var span;
       span = document.createElement("span");
       span.id = id;
-      if (others[0] != null) {
-        para.className = others[0];
-      }
-      para.appendChild(span);
-      this.parent.appendChild(para);
+      parent.appendChild(span);
       return span;
     };
 
     DomCreator.prototype.createCanvas = function() {
-      var canvas, height, others, para, width;
-      width = arguments[0], height = arguments[1], others = 3 <= arguments.length ? slice.call(arguments, 2) : [];
-      para = document.createElement("p");
+      var canvas, height, others, parent, width;
+      parent = arguments[0], width = arguments[1], height = arguments[2], others = 4 <= arguments.length ? slice.call(arguments, 3) : [];
       canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       if (others[0] != null) {
         canvas.id = others[0];
       }
-      if (others[1] != null) {
-        canvas.className = others[1];
-      }
-      para.appendChild(canvas);
-      this.parent.appendChild(para);
+      parent.appendChild(canvas);
       return canvas;
     };
 
     DomCreator.prototype.createButton = function() {
-      var button, id, others;
-      id = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+      var button, id, others, parent;
+      parent = arguments[0], id = arguments[1], others = 3 <= arguments.length ? slice.call(arguments, 2) : [];
       button = document.createElement("button");
       button.id = id;
       if (others[0] != null) {
         button.innerHTML = others[0];
       }
-      this.parent.appendChild(button);
-      if (others[1] != null) {
-        button.className = others[1];
-      }
+      parent.appendChild(button);
       return button;
     };
 
     DomCreator.prototype.createRadio = function() {
-      var id, label, labelHTML, name, others, radio, value;
-      name = arguments[0], value = arguments[1], labelHTML = arguments[2], id = arguments[3], others = 5 <= arguments.length ? slice.call(arguments, 4) : [];
+      var id, label, labelHTML, name, others, parent, radio, value;
+      parent = arguments[0], name = arguments[1], value = arguments[2], labelHTML = arguments[3], id = arguments[4], others = 6 <= arguments.length ? slice.call(arguments, 5) : [];
       radio = document.createElement("input");
       radio.type = "radio";
       radio.name = name;
@@ -94,27 +88,16 @@
       if ((others[0] != null) && others[0]) {
         radio.checked = true;
       }
-      if (others[1] != null) {
-        radio.className = others[1];
-      }
-      this.parent.appendChild(radio);
-      this.parent.appendChild(label);
+      parent.appendChild(radio);
+      parent.appendChild(label);
       return radio;
     };
 
-    DomCreator.prototype.createBreak = function() {
+    DomCreator.prototype.createBreak = function(parent) {
       var br;
       br = document.createElement("br");
-      this.parent.appendChild(br);
+      parent.appendChild(br);
       return br;
-    };
-
-    DomCreator.prototype.createStyle = function(innerHTML) {
-      var style;
-      style = document.createElement("style");
-      style.innerHTML = innerHTML;
-      this.parent.appendChild(style);
-      return style;
     };
 
     return DomCreator;
@@ -240,41 +223,44 @@
     }
 
     App.prototype.createDom = function(DomCreator) {
+      var buttonDiv, descriptionDiv, settingDiv;
       this.domCreator = new DomCreator("snakeGame");
-      this.scoreBar = this.domCreator.createSpan("score");
-      this.canvas = this.domCreator.createCanvas(300, 300, "snakeCanvas");
+      this.scoreBar = this.domCreator.createSpan(this.domCreator.createPara(this.domCreator.createDiv("snakeScore")), "snakeScore");
+      this.canvas = this.domCreator.createCanvas(this.domCreator.createDiv("snakeCanvas"), 300, 300, "snakeCanvas");
       this.ctx = this.canvas.getContext("2d");
-      this.upButton = this.domCreator.createButton("up", "上");
+      buttonDiv = this.domCreator.createDiv("snakeButton");
+      this.upButton = this.domCreator.createButton(buttonDiv, "snakeUp", "上");
       this.upButton.onclick = (function(_this) {
         return function() {
           return _this.handleMoveButton("UP");
         };
       })(this);
-      this.domCreator.createBreak();
-      this.leftButton = this.domCreator.createButton("left", "左");
+      this.domCreator.createBreak(buttonDiv);
+      this.leftButton = this.domCreator.createButton(buttonDiv, "snakeLeft", "左");
       this.leftButton.onclick = (function(_this) {
         return function() {
           return _this.handleMoveButton("LEFT");
         };
       })(this);
-      this.rightButton = this.domCreator.createButton("right", "右");
+      this.rightButton = this.domCreator.createButton(buttonDiv, "snakeRight", "右");
       this.rightButton.onclick = (function(_this) {
         return function() {
           return _this.handleMoveButton("RIGHT");
         };
       })(this);
-      this.domCreator.createBreak();
-      this.downButton = this.domCreator.createButton("down", "下");
+      this.domCreator.createBreak(buttonDiv);
+      this.downButton = this.domCreator.createButton(buttonDiv, "snakeDown", "下");
       this.downButton.onclick = (function(_this) {
         return function() {
           return _this.handleMoveButton("DOWN");
         };
       })(this);
-      this.domCreator.createBreak();
-      this.switchButton = this.domCreator.createButton("switch");
-      this.refreshButton = this.domCreator.createButton("refresh");
-      this.domCreator.createPara("选择速度");
-      this.speedRadio = [this.domCreator.createRadio("speed", "low", "低", "speed0"), this.domCreator.createRadio("speed", "mid", "中", "speed1", true), this.domCreator.createRadio("speed", "high", "高", "speed2")];
+      this.domCreator.createBreak(buttonDiv);
+      this.switchButton = this.domCreator.createButton(buttonDiv, "snakeSwitch");
+      this.refreshButton = this.domCreator.createButton(buttonDiv, "snakeRefresh");
+      settingDiv = this.domCreator.createDiv("snakeSetting");
+      this.domCreator.createPara(settingDiv, "选择速度");
+      this.speedRadio = [this.domCreator.createRadio(settingDiv, "snakeSpeed", "low", "低", "snakeSpeed0"), this.domCreator.createRadio(settingDiv, "snakeSpeed", "mid", "中", "snakeSpeed1", true), this.domCreator.createRadio(settingDiv, "snakeSpeed", "high", "高", "snakeSpeed2")];
       this.speedRadio[0].onclick = (function(_this) {
         return function() {
           return _this.setSpeed(0);
@@ -291,7 +277,7 @@
         };
       })(this);
       this.domCreator.createPara("选择地图");
-      this.mapRadio = [this.domCreator.createRadio("map", "map0", "无地图", "map0", true), this.domCreator.createRadio("map", "map1", "地图一", "map1"), this.domCreator.createRadio("map", "map2", "地图二", "map2")];
+      this.mapRadio = [this.domCreator.createRadio("snakeMap", "map0", "无地图", "snakeMap0", true), this.domCreator.createRadio("snakeMap", "map1", "地图一", "snakeMap1"), this.domCreator.createRadio("snakeMap", "map2", "地图二", "snakeMap2")];
       this.mapRadio[0].onclick = (function(_this) {
         return function() {
           return _this.setMap(0);
@@ -307,9 +293,10 @@
           return _this.setMap(2);
         };
       })(this);
-      this.domCreator.createPara("空格暂停/开始，回车重来");
-      this.domCreator.createPara("WASD、方向键或划屏操纵");
-      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 4px 4px 4px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n	font-size: 15px;\n	margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 10px 20px 10px 20px;\n  font-weight: 400;\n  line-height: 1.42857143;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 4px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
+      descriptionDiv = this.domCreator.createDiv("snakeDescription");
+      this.domCreator.createPara(descriptionDiv, "空格暂停/开始，回车重来");
+      this.domCreator.createPara(descriptionDiv, "WASD、方向键或划屏操纵");
+      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 5px 5px 5px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n  margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 5px 20px 5px 20px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 1.5;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 5px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
       if (window.fakeStorage == null) {
         window.fakeStorage = new FakeStorage();
       }
