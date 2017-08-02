@@ -33,7 +33,6 @@
       var others, para, parent;
       parent = arguments[0], others = 2 <= arguments.length ? slice.call(arguments, 1) : [];
       para = document.createElement("p");
-      para.innerHTML = innerHTML;
       if (others[0] != null) {
         para.innerHTML = others[0];
       }
