@@ -2,7 +2,8 @@
 (function() {
   var App, DomCreator, FakeStorage, app,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    slice = [].slice;
+    slice = [].slice,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   DomCreator = (function() {
     function DomCreator(parentId) {
@@ -162,7 +163,9 @@
       this.start = bind(this.start, this);
       this.main = bind(this.main, this);
       this.setButtonContent = bind(this.setButtonContent, this);
+      this.getMap = bind(this.getMap, this);
       this.setMap = bind(this.setMap, this);
+      this.getSpeed = bind(this.getSpeed, this);
       this.setSpeed = bind(this.setSpeed, this);
       this.handleTouchEnd = bind(this.handleTouchEnd, this);
       this.handleTouchStart = bind(this.handleTouchStart, this);
@@ -223,14 +226,21 @@
         }
       ];
       this.map = this.maps[0];
+      if (window.navigator.msPointerEnabled) {
+        this.eventTouchStart = "MSPointerDown";
+        this.eventTouchMove = "MSPointerMove";
+        this.eventTouchEnd = "MSPointerUp";
+      } else {
+        this.eventTouchStart = "touchstart";
+        this.eventTouchMove = "touchmove";
+        this.eventTouchEnd = "touchend";
+      }
       this.refresh();
       addEventListener("keydown", this.handleButtonKeyDown, false);
     }
 
     App.prototype.createDom = function(DomCreator) {
       this.domCreator = new DomCreator("snakeGame");
-      this.domCreator.createPara("空格暂停/开始，回车重来");
-      this.domCreator.createPara("WASD、方向键或划屏操纵");
       this.scoreBar = this.domCreator.createSpan("score");
       this.canvas = this.domCreator.createCanvas(300, 300, "snakeCanvas");
       this.ctx = this.canvas.getContext("2d");
@@ -265,24 +275,41 @@
       this.refreshButton = this.domCreator.createButton("refresh");
       this.domCreator.createPara("选择速度");
       this.speedRadio = [this.domCreator.createRadio("speed", "low", "低", "speed0"), this.domCreator.createRadio("speed", "mid", "中", "speed1", true), this.domCreator.createRadio("speed", "high", "高", "speed2")];
+      this.speedRadio[0].onclick = (function(_this) {
+        return function() {
+          return _this.setSpeed(0);
+        };
+      })(this);
+      this.speedRadio[1].onclick = (function(_this) {
+        return function() {
+          return _this.setSpeed(1);
+        };
+      })(this);
+      this.speedRadio[2].onclick = (function(_this) {
+        return function() {
+          return _this.setSpeed(2);
+        };
+      })(this);
       this.domCreator.createPara("选择地图");
       this.mapRadio = [this.domCreator.createRadio("map", "map0", "无地图", "map0", true), this.domCreator.createRadio("map", "map1", "地图一", "map1"), this.domCreator.createRadio("map", "map2", "地图二", "map2")];
-      this.speedRadio[0].onclick = this.setSpeed;
-      this.speedRadio[1].onclick = this.setSpeed;
-      this.speedRadio[2].onclick = this.setSpeed;
-      this.mapRadio[0].onclick = this.setMap;
-      this.mapRadio[1].onclick = this.setMap;
-      this.mapRadio[2].onclick = this.setMap;
-      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 4px 4px 4px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n	font-size: 30px;\n	margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 6px 12px 6px 12px;\n  font-size: 14px;\n  font-weight: 400;\n  line-height: 1.42857143;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 4px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
-      if (window.navigator.msPointerEnabled) {
-        this.eventTouchStart = "MSPointerDown";
-        this.eventTouchMove = "MSPointerMove";
-        this.eventTouchEnd = "MSPointerUp";
-      } else {
-        this.eventTouchStart = "touchstart";
-        this.eventTouchMove = "touchmove";
-        this.eventTouchEnd = "touchend";
-      }
+      this.mapRadio[0].onclick = (function(_this) {
+        return function() {
+          return _this.setMap(0);
+        };
+      })(this);
+      this.mapRadio[1].onclick = (function(_this) {
+        return function() {
+          return _this.setMap(1);
+        };
+      })(this);
+      this.mapRadio[2].onclick = (function(_this) {
+        return function() {
+          return _this.setMap(2);
+        };
+      })(this);
+      this.domCreator.createPara("空格暂停/开始，回车重来");
+      this.domCreator.createPara("WASD、方向键或划屏操纵");
+      this.domCreator.createStyle(".snakeGame {\n  font: 16px/1.8 \"Noto Sans\", \"Noto Sans CJK\", \"Lato\", \"Microsoft Jhenghei\", \"Hiragino Sans GB\", \"Microsoft YaHei\", arial, sans-serif;\n  color: #333;\n  text-shadow: 4px 4px 4px #aaa;\n  text-align: center;\n}\n\n.snakeGame p {\n  margin: 5px auto 5px auto;\n}\n\n.snakeGame button {\n	font-size: 30px;\n	margin: 5px 30px 5px 30px;\n  color: #fff;\n  background-color: #d9534f;\n  border-color: #d43f3a;\n  display: inline-block;\n  padding: 10px 15px 10px 15px;\n  font-size: 14px;\n  font-weight: 400;\n  line-height: 1.42857143;\n  white-space: nowrap;\n  vertical-align: middle;\n  touch-action: manipulation;\n  cursor: pointer;\n  user-select: none;\n  background-image: none;\n  border: 1px solid transparent;\n  border-radius: 4px;\n}\n\n.snakeGame button:hover {\n  color: #fff;\n  background-color: #c9302c;\n  border-color: #ac2925;\n}\n\n.snakeGame label {\n  margin: auto 5px auto 5px;\n}");
       if (window.fakeStorage == null) {
         window.fakeStorage = new FakeStorage();
       }
@@ -307,22 +334,10 @@
         "score": this.score,
         "status": "STOPPED",
         "food": this.food,
-        "snake": this.snake
+        "snake": this.snake,
+        "map": this.getMap(),
+        "speed": this.getSpeed()
       };
-      if (this.mapRadio[1].checked) {
-        snakeStorage["map"] = 1;
-      } else if (this.mapRadio[2].checked) {
-        snakeStorage["map"] = 2;
-      } else {
-        snakeStorage["map"] = 0;
-      }
-      if (this.speedRadio[0].checked) {
-        snakeStorage["speed"] = 0;
-      } else if (this.speedRadio[2].checked) {
-        snakeStorage["speed"] = 2;
-      } else {
-        snakeStorage["speed"] = 1;
-      }
       return this.storage.setItem("snakeStorage", JSON.stringify(snakeStorage));
     };
 
@@ -343,14 +358,14 @@
         mapRadio.checked = false;
       }
       this.mapRadio[snakeStorage["map"]].checked = true;
-      this.map = this.maps[snakeStorage["map"]];
+      this.mapRadio[snakeStorage["map"]].onclick();
       ref1 = this.speedRadio;
       for (l = 0, len1 = ref1.length; l < len1; l++) {
         speedRadio = ref1[l];
         speedRadio.checked = false;
       }
       this.speedRadio[snakeStorage["speed"]].checked = true;
-      this.interval = this.intervals[snakeStorage["speed"]];
+      this.speedRadio[snakeStorage["speed"]].onclick();
       this.score = snakeStorage["score"];
       this.status = snakeStorage["status"];
       this.food = snakeStorage["food"];
@@ -495,18 +510,20 @@
       this.insertSnakeHead();
       switch (this.checkHeadCollision()) {
         case 1:
-          this.addScore();
-          return this.createFood();
+          this.addScore(1);
+          this.createFood();
+          return 1;
         case 0:
-          return this.deleteSnakeTail();
+          this.deleteSnakeTail();
+          return 0;
         case -1:
           this.deleteSnakeTail();
           return -1;
       }
     };
 
-    App.prototype.addScore = function() {
-      this.score++;
+    App.prototype.addScore = function(num) {
+      this.score += num;
       return this.setScore();
     };
 
@@ -584,7 +601,10 @@
     };
 
     App.prototype.handleMoveButton = function(move) {
-      return this.moveQueue.push(move);
+      var ref;
+      if (ref = move.toUpperCase(), indexOf.call(this.directions, ref) >= 0) {
+        return this.moveQueue.push(move.toUpperCase());
+      }
     };
 
     App.prototype.handleButtonKeyDown = function(event) {
@@ -669,35 +689,57 @@
       }
     };
 
-    App.prototype.setSpeed = function() {
-      if (this.speedRadio[0].checked) {
-        this.interval = this.intervals[0];
-        this.removeStorage();
-        return this.refresh();
-      } else if (this.speedRadio[2].checked) {
-        this.interval = this.intervals[2];
+    App.prototype.setSpeed = function(level) {
+      var k, ref, results;
+      if (indexOf.call((function() {
+        results = [];
+        for (var k = 0, ref = this.intervals.length; 0 <= ref ? k < ref : k > ref; 0 <= ref ? k++ : k--){ results.push(k); }
+        return results;
+      }).apply(this), level) >= 0) {
+        this.interal = this.intervals[level];
         this.removeStorage();
         return this.refresh();
       } else {
-        this.interval = this.intervals[1];
+        this.interal = this.intervals[1];
         this.removeStorage();
         return this.refresh();
       }
     };
 
-    App.prototype.setMap = function() {
-      if (this.mapRadio[1].checked) {
-        this.map = this.maps[1];
-        this.removeStorage();
-        return this.refresh();
-      } else if (this.mapRadio[2].checked) {
-        this.map = this.maps[2];
+    App.prototype.getSpeed = function() {
+      if (this.speedRadio[0].checked) {
+        return 0;
+      } else if (this.speedRadio[2].checked) {
+        return 2;
+      } else {
+        return 1;
+      }
+    };
+
+    App.prototype.setMap = function(level) {
+      var k, ref, results;
+      if (indexOf.call((function() {
+        results = [];
+        for (var k = 0, ref = this.maps.length; 0 <= ref ? k < ref : k > ref; 0 <= ref ? k++ : k--){ results.push(k); }
+        return results;
+      }).apply(this), level) >= 0) {
+        this.map = this.maps[level];
         this.removeStorage();
         return this.refresh();
       } else {
         this.map = this.maps[0];
         this.removeStorage();
         return this.refresh();
+      }
+    };
+
+    App.prototype.getMap = function() {
+      if (this.mapRadio[1].checked) {
+        return 1;
+      } else if (this.mapRadio[2].checked) {
+        return 2;
+      } else {
+        return 0;
       }
     };
 
