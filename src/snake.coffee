@@ -187,11 +187,17 @@ class App
     @speedRadio[0].onclick = () => @setSpeed(0)
     @speedRadio[1].onclick = () => @setSpeed(1)
     @speedRadio[2].onclick = () => @setSpeed(2)
-    @domCreator.createPara("选择地图")
+    @domCreator.createPara(settingDiv, "选择地图")
     @mapRadio = [
-      @domCreator.createRadio("snakeMap", "map0", "无地图", "snakeMap0", true),
-      @domCreator.createRadio("snakeMap", "map1", "地图一", "snakeMap1"),
-      @domCreator.createRadio("snakeMap", "map2", "地图二", "snakeMap2")
+      @domCreator.createRadio(
+        settingDiv, "snakeMap", "map0", "无地图", "snakeMap0", true
+      ),
+      @domCreator.createRadio(
+        settingDiv, "snakeMap", "map1", "地图一", "snakeMap1"
+      ),
+      @domCreator.createRadio(
+        settingDiv, "snakeMap", "map2", "地图二", "snakeMap2"
+      )
     ]
     @mapRadio[0].onclick = () => @setMap(0)
     @mapRadio[1].onclick = () => @setMap(1)
