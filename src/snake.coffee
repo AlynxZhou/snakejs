@@ -207,7 +207,7 @@ class App
     @domCreator.createPara(descriptionDiv, "WASD、方向键或划屏操纵")
     @domCreator.createStyle("""
     .snakeGame {
-      font: 20px/1.5 "Noto Sans", "Noto Sans CJK", "Lato", \
+      font: 15px/1.5 "Noto Sans", "Noto Sans CJK", "Lato", \
       "Microsoft Jhenghei", "Hiragino Sans GB", "Microsoft YaHei", \
       arial, sans-serif;
       color: #333;
