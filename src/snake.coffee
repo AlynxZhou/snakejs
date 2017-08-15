@@ -154,7 +154,7 @@ class App
     @scoreBar = @domCreator.createSpan(@domCreator.createPara(
       @domCreator.createDiv("snakeScore")
     ), "snakeScore")
-    @canvas = @domCreator.createCanvas(@domCreator.createDiv("snakeCanvas"),
+    @canvas = @domCreator.createCanvas(@domCreator.createDiv("snakeCanvas"), \
     300, 300, "snakeCanvas")
     @ctx = @canvas.getContext("2d")
     buttonDiv = @domCreator.createDiv("snakeButton")
@@ -534,10 +534,12 @@ class App
     @touchStart = []
     # Only handle when move distance is bigger than 30.
     if Math.max(absDx, absDy) > 30
-      move = (if absDx > absDy
-        (if dx > 0 then "RIGHT" else "LEFT")
-      else
-        (if dy > 0 then "DOWN" else "UP"))
+      move = (
+        if absDx > absDy
+          (if dx > 0 then "RIGHT" else "LEFT")
+        else
+          (if dy > 0 then "DOWN" else "UP")
+      )
       event.preventDefault()
       @moveQueue.push(move)
 
